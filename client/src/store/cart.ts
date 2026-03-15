@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { ProductResponse } from '@shared/routes';
+import type { Product } from '@/data/products';
 
 export interface CartItem {
-  product: ProductResponse;
+  product: Product;
   quantity: number;
 }
 
@@ -11,7 +11,7 @@ interface CartStore {
   items: CartItem[];
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  addItem: (product: ProductResponse, quantity?: number) => void;
+  addItem: (product: Product, quantity?: number) => void;
   removeItem: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
@@ -29,7 +29,6 @@ export const useCartStore = create<CartStore>()(
       addItem: (product, quantity = 1) => {
         set((state) => {
           const existingItem = state.items.find((item) => item.product.id === product.id);
-          
           if (existingItem) {
             return {
               items: state.items.map((item) =>
@@ -37,10 +36,9 @@ export const useCartStore = create<CartStore>()(
                   ? { ...item, quantity: item.quantity + quantity }
                   : item
               ),
-              isOpen: true, // Open cart when adding item
+              isOpen: true,
             };
           }
-          
           return {
             items: [...state.items, { product, quantity }],
             isOpen: true,
@@ -59,7 +57,6 @@ export const useCartStore = create<CartStore>()(
           get().removeItem(productId);
           return;
         }
-        
         set((state) => ({
           items: state.items.map((item) =>
             item.product.id === productId ? { ...item, quantity } : item
@@ -81,7 +78,7 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: 'ventures-cart-storage',
-      partialize: (state) => ({ items: state.items }), // Only persist items, not UI state
+      partialize: (state) => ({ items: state.items }),
     }
   )
 );
