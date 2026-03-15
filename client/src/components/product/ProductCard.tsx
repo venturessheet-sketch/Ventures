@@ -26,7 +26,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link 
       href={`/product/${product.id}`}
-      className="group block hover-brutalist bg-white flex flex-col h-full"
+      className="group block hover-brutalist bg-[#C0C0C0] flex flex-col h-full"
     >
       {/* Image Container */}
       <div className="relative aspect-[4/5] bg-gray-100 border-b-2 border-black overflow-hidden flex-shrink-0">
@@ -58,7 +58,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <button
           onClick={handleAddToCart}
           disabled={!product.inStock}
-          className="absolute bottom-4 right-4 z-20 bg-white border-2 border-black p-3 translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black hover:text-white brutalist-shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          className="absolute bottom-4 right-4 z-20 bg-[#C0C0C0] border-2 border-black p-3 translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black hover:text-[#C0C0C0] brutalist-shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Add to cart"
         >
           <Plus className="w-6 h-6" strokeWidth={3} />

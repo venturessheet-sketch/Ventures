@@ -26,10 +26,10 @@ export function CartDrawer() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white border-l-4 border-black brutalist-shadow flex flex-col"
+            className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-[#C0C0C0] border-l-4 border-black brutalist-shadow flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b-4 border-black bg-white">
+            <div className="flex items-center justify-between p-6 border-b-4 border-black bg-[#C0C0C0]">
               <h2 className="text-3xl font-display font-black tracking-tighter uppercase flex items-center gap-3">
                 <ShoppingBag className="w-8 h-8" strokeWidth={2.5} />
                 Your Cart
@@ -43,10 +43,10 @@ export function CartDrawer() {
             </div>
 
             {/* Items List */}
-            <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+            <div className="flex-1 overflow-y-auto p-6 bg-[#ADADAD]">
               {items.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center space-y-6">
-                  <div className="w-24 h-24 border-4 border-black rounded-full flex items-center justify-center bg-white brutalist-shadow">
+                  <div className="w-24 h-24 border-4 border-black rounded-full flex items-center justify-center bg-[#C0C0C0] brutalist-shadow">
                     <ShoppingBag className="w-10 h-10" />
                   </div>
                   <div>
@@ -63,7 +63,7 @@ export function CartDrawer() {
               ) : (
                 <div className="space-y-6">
                   {items.map((item) => (
-                    <div key={item.product.id} className="flex gap-4 p-4 bg-white border-2 border-black brutalist-shadow-sm">
+                    <div key={item.product.id} className="flex gap-4 p-4 bg-[#C0C0C0] border-2 border-black brutalist-shadow-sm">
                       {/* Image */}
                       <div className="w-24 h-24 bg-gray-100 border-2 border-black flex-shrink-0 overflow-hidden">
                         <img 
@@ -121,7 +121,7 @@ export function CartDrawer() {
 
             {/* Footer */}
             {items.length > 0 && (
-              <div className="border-t-4 border-black p-6 bg-white">
+              <div className="border-t-4 border-black p-6 bg-[#C0C0C0]">
                 <div className="flex justify-between items-center mb-6">
                   <span className="font-display text-xl uppercase tracking-wider text-gray-500">Subtotal</span>
                   <span className="font-display font-black text-3xl">{formatPrice(getTotal())}</span>

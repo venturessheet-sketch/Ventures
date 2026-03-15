@@ -16,8 +16,8 @@ export default function Home() {
       {/* Brutalist Hero Section */}
       <section className="relative min-h-[85vh] flex flex-col lg:flex-row border-b-4 border-black">
         {/* Left/Top Content */}
-        <div className="flex-1 flex flex-col justify-center p-8 lg:p-16 xl:p-24 relative z-10 bg-white border-b-4 lg:border-b-0 lg:border-r-4 border-black">
-          <div className="inline-flex items-center gap-2 border-2 border-black px-4 py-2 w-max mb-8 brutalist-shadow-sm bg-[#FFE600]">
+        <div className="flex-1 flex flex-col justify-center p-8 lg:p-16 xl:p-24 relative z-10 bg-[#C0C0C0] border-b-4 lg:border-b-0 lg:border-r-4 border-black">
+          <div className="inline-flex items-center gap-2 border-2 border-black px-4 py-2 w-max mb-8 brutalist-shadow-sm bg-[#FF7800]">
             <Zap className="w-5 h-5 fill-black" />
             <span className="font-display font-bold uppercase tracking-widest">Est. 2024 • Morocco</span>
           </div>
@@ -99,7 +99,7 @@ export default function Home() {
       </section>
 
       {/* Banner Section */}
-      <section className="border-y-4 border-black bg-[#FFE600] py-20 overflow-hidden">
+      <section className="border-y-4 border-black bg-[#FF7800] py-20 overflow-hidden">
         <div className="flex whitespace-nowrap animate-marquee">
           <h2 className="text-7xl md:text-9xl font-display font-black uppercase tracking-tighter text-black px-8">
             VENTURES CLOTHING // MOROCCO // QUALITY STREETWEAR //

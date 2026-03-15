@@ -13,9 +13,11 @@ export function Navbar() {
 
   const navLinks = [
     { name: "Shop All", path: "/shop" },
-    { name: "Men", path: "/shop?category=Men" },
-    { name: "Women", path: "/shop?category=Women" },
-    { name: "Unisex", path: "/shop?category=Unisex" },
+    { name: "Hoodies", path: "/shop?category=Hoodies" },
+    { name: "Sweaters", path: "/shop?category=Sweaters" },
+    { name: "T-Shirts", path: "/shop?category=T-Shirts" },
+    { name: "Pants", path: "/shop?category=Regular Pants" },
+    { name: "Shorts", path: "/shop?category=Shorts" },
   ];
 
   // Handle scroll for sticky border effect
@@ -36,7 +38,7 @@ export function Navbar() {
     <>
       <header 
         className={cn(
-          "fixed top-0 left-0 right-0 z-40 bg-white transition-all duration-300",
+          "fixed top-0 left-0 right-0 z-40 bg-[#C0C0C0] transition-all duration-300",
           isScrolled ? "border-b-2 border-black brutalist-shadow-sm" : "border-b-2 border-transparent"
         )}
       >
@@ -89,7 +91,7 @@ export function Navbar() {
           {/* Cart Trigger */}
           <button 
             onClick={() => setIsOpen(true)}
-            className="flex items-center gap-2 hover-brutalist bg-white px-4 py-2 group"
+            className="flex items-center gap-2 hover-brutalist bg-[#C0C0C0] px-4 py-2 group"
           >
             <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform" />
             <span className="font-display font-bold text-lg hidden sm:block">CART</span>
@@ -108,7 +110,7 @@ export function Navbar() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "-100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 20 }}
-            className="fixed inset-0 z-50 bg-white"
+            className="fixed inset-0 z-50 bg-[#C0C0C0]"
           >
             <div className="flex flex-col h-full p-6">
               <div className="flex justify-between items-center mb-12">

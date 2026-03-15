@@ -12,7 +12,7 @@ export default function Shop() {
   const { data: products, isLoading } = useProducts(currentCategory);
   const [location, setLocation] = useLocation();
 
-  const categories = ["All", "Men", "Women", "Unisex"];
+  const categories = ["All", "Hoodies", "Sweaters", "T-Shirts", "Regular Pants", "Baggy Pants", "Shorts"];
 
   const handleCategoryChange = (category: string) => {
     if (category === "All") {
@@ -40,7 +40,7 @@ export default function Shop() {
         
         {/* Sidebar Filters */}
         <aside className="w-full md:w-64 flex-shrink-0">
-          <div className="sticky top-28 border-2 border-black p-6 brutalist-shadow-sm bg-white">
+          <div className="sticky top-28 border-2 border-black p-6 brutalist-shadow-sm bg-[#C0C0C0]">
             <h3 className="font-display font-bold text-2xl uppercase tracking-widest mb-6 border-b-2 border-black pb-2">Categories</h3>
             <div className="flex flex-col space-y-3">
               {categories.map((cat) => (

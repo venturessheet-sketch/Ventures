@@ -10,8 +10,8 @@ async function seedDatabase() {
     await storage.createProduct({
       name: "Classic Black Hoodie",
       description: "Our signature heavy-weight hoodie with a relaxed, modern fit.",
-      price: 6500, // $65.00
-      category: "Unisex",
+      price: 6500,
+      category: "Hoodies",
       imageUrl: "/images/FIT22_1771956770264.png",
       inStock: true
     });
@@ -19,27 +19,54 @@ async function seedDatabase() {
     await storage.createProduct({
       name: "Essential Grey Zip-Up",
       description: "Premium grey zip-up hoodie. Comfortable and stylish for daily wear.",
-      price: 5500, // $55.00
-      category: "Men",
+      price: 5500,
+      category: "Hoodies",
       imageUrl: "/images/fit_1771956770265.png",
       inStock: true
     });
 
     await storage.createProduct({
-      name: "Urban Logo Tee",
-      description: "Simple, clean block-lettering logo t-shirt in white.",
-      price: 3500, // $35.00
-      category: "Women",
+      name: "Ventures Logo Tee",
+      description: "Clean block-lettering logo t-shirt. Lightweight and breathable.",
+      price: 3500,
+      category: "T-Shirts",
       imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&auto=format&fit=crop",
       inStock: true
     });
 
     await storage.createProduct({
-      name: "Streetwear Cap",
-      description: "Minimalist cap featuring our iconic house font logo.",
-      price: 2500, // $25.00
-      category: "Unisex",
-      imageUrl: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=800&auto=format&fit=crop",
+      name: "Urban Crew Sweater",
+      description: "Relaxed-fit crew neck sweater, perfect for layering.",
+      price: 5800,
+      category: "Sweaters",
+      imageUrl: "https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=800&auto=format&fit=crop",
+      inStock: true
+    });
+
+    await storage.createProduct({
+      name: "Street Regular Pants",
+      description: "Straight cut pants with a clean silhouette. Everyday staple.",
+      price: 6000,
+      category: "Regular Pants",
+      imageUrl: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=800&auto=format&fit=crop",
+      inStock: true
+    });
+
+    await storage.createProduct({
+      name: "Oversized Baggy Pants",
+      description: "Wide-leg baggy fit pants, the ultimate streetwear statement piece.",
+      price: 7000,
+      category: "Baggy Pants",
+      imageUrl: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=800&auto=format&fit=crop",
+      inStock: true
+    });
+
+    await storage.createProduct({
+      name: "Essential Shorts",
+      description: "Comfortable everyday shorts with a clean, minimal look.",
+      price: 3800,
+      category: "Shorts",
+      imageUrl: "https://images.unsplash.com/photo-1591195853828-11db59a44f43?w=800&auto=format&fit=crop",
       inStock: true
     });
   }
