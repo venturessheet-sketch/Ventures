@@ -13,12 +13,17 @@ import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
 
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
+
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/shop" component={Shop} />
       <Route path="/product/:id" component={ProductDetail} />
+      <Route path="/55TYUBBN" component={AdminLogin} />
+      <Route path="/55TYUBBN/dashboard" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

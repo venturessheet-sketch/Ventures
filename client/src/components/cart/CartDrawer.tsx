@@ -131,11 +131,21 @@ export function CartDrawer() {
                   Shipping and taxes calculated at checkout.
                 </p>
                 
-                <button className="w-full hover-brutalist bg-black text-white py-5 font-display text-2xl uppercase tracking-widest relative overflow-hidden group">
-                  <span className="relative z-10">Checkout Now</span>
-                  <div className="absolute inset-0 h-full w-full bg-white transform scale-y-0 group-hover:scale-y-100 transition-transform origin-bottom duration-300 ease-out z-0"></div>
-                  <span className="absolute inset-0 flex items-center justify-center text-black z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    Checkout Now
+                <button 
+                  onClick={() => {
+                    const number = import.meta.env.VITE_WHATSAPP_NUMBER || "212600000000";
+                    let text = "Hello! I would like to place an order:\n\n";
+                    items.forEach(item => {
+                      text += `• ${item.quantity}x ${item.product.name} - ${formatPrice(item.product.price * item.quantity)}\n`;
+                    });
+                    text += `\n*TOTAL: ${formatPrice(getTotal())}*`;
+                    window.open(`https://wa.me/${number}?text=${encodeURIComponent(text)}`, "_blank");
+                  }}
+                  className="w-full hover-brutalist bg-black text-white py-5 font-display text-2xl uppercase tracking-widest relative overflow-hidden group">
+                  <span className="relative z-10 group-hover:opacity-0 transition-opacity duration-300">Checkout via WhatsApp</span>
+                  <div className="absolute inset-0 h-full w-full bg-[#25D366] transform scale-y-0 group-hover:scale-y-100 transition-transform origin-bottom duration-300 ease-out z-0"></div>
+                  <span className="absolute inset-0 flex items-center justify-center text-white z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-bold">
+                    Send Order
                   </span>
                 </button>
                 

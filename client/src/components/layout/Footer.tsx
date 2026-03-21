@@ -41,10 +41,10 @@ export function Footer() {
           <div>
             <h3 className="font-display font-bold text-xl tracking-widest uppercase mb-6 border-b-2 border-gray-800 pb-2 inline-block">Support</h3>
             <ul className="space-y-4 font-sans text-gray-400">
-              <li><a href="#" className="hover:text-[#C0C0C0] transition-colors hover:pl-2">FAQ</a></li>
-              <li><a href="#" className="hover:text-[#C0C0C0] transition-colors hover:pl-2">Shipping & Returns</a></li>
-              <li><a href="#" className="hover:text-[#C0C0C0] transition-colors hover:pl-2">Size Guide</a></li>
-              <li><a href="#" className="hover:text-[#C0C0C0] transition-colors hover:pl-2">Contact Us</a></li>
+              <li><Link href="/" className="hover:text-[#C0C0C0] transition-colors hover:pl-2">FAQ</Link></li>
+              <li><Link href="/" className="hover:text-[#C0C0C0] transition-colors hover:pl-2">Shipping & Returns</Link></li>
+              <li><Link href="/" className="hover:text-[#C0C0C0] transition-colors hover:pl-2">Size Guide</Link></li>
+              <li><Link href="/" className="hover:text-[#C0C0C0] transition-colors hover:pl-2">Contact Us</Link></li>
             </ul>
           </div>
 
@@ -55,8 +55,8 @@ export function Footer() {
             &copy; {new Date().getFullYear()} Ventures Clothing. All rights reserved.
           </p>
           <div className="flex gap-6 font-sans text-sm text-gray-500">
-            <a href="#" className="hover:text-[#C0C0C0] transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-[#C0C0C0] transition-colors">Terms of Service</a>
+            <Link href="/" className="hover:text-[#C0C0C0] transition-colors">Privacy Policy</Link>
+            <Link href="/" className="hover:text-[#C0C0C0] transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>
