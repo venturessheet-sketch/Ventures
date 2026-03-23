@@ -18,6 +18,7 @@ export function Navbar() {
     { name: "T-Shirts", path: "/shop?category=T-Shirts" },
     { name: "Pants", path: "/shop?category=Regular Pants" },
     { name: "Shorts", path: "/shop?category=Shorts" },
+    { name: "Ensemble", path: "/shop?category=Ensemble" },
   ];
 
   // Handle scroll for sticky border effect
@@ -109,7 +110,7 @@ export function Navbar() {
             initial={{ opacity: 0, x: "-100%" }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "-100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 20 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="fixed inset-0 z-50 bg-[#C0C0C0]"
           >
             <div className="flex flex-col h-full p-6">

@@ -12,7 +12,7 @@ export default function Shop() {
   const { data: products, isLoading } = useProducts(currentCategory);
   const [location, setLocation] = useLocation();
 
-  const categories = ["All", "Hoodies", "Sweaters", "T-Shirts", "Regular Pants", "Baggy Pants", "Shorts"];
+  const categories = ["All", "Hoodies", "Sweaters", "T-Shirts", "Regular Pants", "Baggy Pants", "Shorts", "Ensemble"];
 
   const handleCategoryChange = (category: string) => {
     if (category === "All") {

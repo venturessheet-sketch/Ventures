@@ -20,7 +20,8 @@ const CATEGORIES = [
   "T-Shirts",
   "Regular Pants",
   "Baggy Pants",
-  "Shorts"
+  "Shorts",
+  "Ensemble"
 ];
 
 export default function AdminDashboard() {
@@ -104,7 +105,8 @@ export default function AdminDashboard() {
           id: nextId,
           name: newProduct.name,
           description: newProduct.description,
-          price: parseInt(newProduct.price.toString(), 10),
+          // Convert DH to cents for storage
+          price: Math.round(parseFloat(newProduct.price.toString()) * 100),
           category: newProduct.category,
           imageBase64: imageBase64,
           imageUrl: imageUrl,
@@ -135,7 +137,8 @@ export default function AdminDashboard() {
     setNewProduct({
       name: product.name,
       description: product.description,
-      price: product.price.toString(),
+      // Convert cents to DH for display
+      price: (product.price / 100).toString(),
       category: product.category,
       inStock: product.inStock
     });
@@ -183,8 +186,8 @@ export default function AdminDashboard() {
               <Input required value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} placeholder="Classic Tee" />
             </div>
             <div className="space-y-2">
-              <Label>Price (in Centimes - e.g 2500 for 25.00 MAD)</Label>
-              <Input required type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} placeholder="2500" />
+              <Label>Price (in DH)</Label>
+              <Input required type="number" step="0.01" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} placeholder="250" />
             </div>
             <div className="space-y-2">
               <Label>Category</Label>
