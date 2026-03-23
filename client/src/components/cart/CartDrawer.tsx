@@ -1,11 +1,20 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Trash2, Plus, Minus, ShoppingBag } from "lucide-react";
+import { X, Trash2, Plus, Minus, ShoppingBag, Loader2 } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 export function CartDrawer() {
   const { isOpen, setIsOpen, items, removeItem, updateQuantity, getTotal, clearCart } = useCartStore();
+  const [, setLocation] = useLocation();
+
+  const handleCheckout = () => {
+    setIsOpen(false);
+    setLocation("/checkout");
+  };
 
   return (
     <AnimatePresence>
@@ -127,25 +136,19 @@ export function CartDrawer() {
                   <span className="font-display font-black text-3xl">{formatPrice(getTotal())}</span>
                 </div>
                 
-                <p className="text-sm text-gray-500 font-sans mb-6">
-                  Shipping and taxes calculated at checkout.
+                <p className="text-sm text-gray-500 font-sans mb-6 italic">
+                  Complete your details on the next page.
                 </p>
                 
                 <button 
-                  onClick={() => {
-                    const number = import.meta.env.VITE_WHATSAPP_NUMBER || "212600000000";
-                    let text = "Hello! I would like to place an order:\n\n";
-                    items.forEach(item => {
-                      text += `• ${item.quantity}x ${item.product.name} - ${formatPrice(item.product.price * item.quantity)}\n`;
-                    });
-                    text += `\n*TOTAL: ${formatPrice(getTotal())}*`;
-                    window.open(`https://wa.me/${number}?text=${encodeURIComponent(text)}`, "_blank");
-                  }}
+                  onClick={handleCheckout}
                   className="w-full hover-brutalist bg-black text-white py-5 font-display text-2xl uppercase tracking-widest relative overflow-hidden group">
-                  <span className="relative z-10 group-hover:opacity-0 transition-opacity duration-300">Checkout via WhatsApp</span>
-                  <div className="absolute inset-0 h-full w-full bg-[#25D366] transform scale-y-0 group-hover:scale-y-100 transition-transform origin-bottom duration-300 ease-out z-0"></div>
+                  <span className="relative z-10 transition-opacity duration-300 group-hover:opacity-0">
+                    Proceed to Checkout
+                  </span>
+                  <div className="absolute inset-0 h-full w-full bg-red-600 transform scale-y-0 group-hover:scale-y-100 transition-transform origin-bottom duration-300 ease-out z-0"></div>
                   <span className="absolute inset-0 flex items-center justify-center text-white z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-bold">
-                    Send Order
+                    Checkout Now
                   </span>
                 </button>
                 

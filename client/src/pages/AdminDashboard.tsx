@@ -33,7 +33,7 @@ export default function AdminDashboard() {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [newProduct, setNewProduct] = useState({
-    name: "", description: "", price: "", category: "", inStock: true
+    name: "", description: "", price: "", category: "", inStock: true, quantity: "0", isVisible: true
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -110,13 +110,15 @@ export default function AdminDashboard() {
           category: newProduct.category,
           imageBase64: imageBase64,
           imageUrl: imageUrl,
-          inStock: newProduct.inStock
+          inStock: newProduct.inStock,
+          quantity: parseInt(newProduct.quantity.toString(), 10) || 0,
+          isVisible: newProduct.isVisible
         }),
       });
 
       if (response.ok) {
         toast({ title: "Success", description: `Product ${editingId ? "updated" : "added"} successfully!` });
-        setNewProduct({ name: "", description: "", price: "", category: "", inStock: true });
+        setNewProduct({ name: "", description: "", price: "", category: "", inStock: true, quantity: "0", isVisible: true });
         setImageFile(null);
         setImagePreview(null);
         setEditingId(null);
@@ -140,7 +142,9 @@ export default function AdminDashboard() {
       // Convert cents to DH for display
       price: (product.price / 100).toString(),
       category: product.category,
-      inStock: product.inStock
+      inStock: product.inStock,
+      quantity: product.quantity.toString(),
+      isVisible: product.isVisible
     });
     setImagePreview(product.imageUrl);
     setImageFile(null);
@@ -202,6 +206,20 @@ export default function AdminDashboard() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label>Quantity</Label>
+              <Input required type="number" value={newProduct.quantity} onChange={e => setNewProduct({...newProduct, quantity: e.target.value})} placeholder="10" />
+            </div>
+            <div className="flex items-center space-x-2 pt-8">
+              <input 
+                type="checkbox" 
+                id="isVisible" 
+                checked={newProduct.isVisible} 
+                onChange={e => setNewProduct({...newProduct, isVisible: e.target.checked})}
+                className="w-5 h-5 border-2 border-black rounded-none cursor-pointer"
+              />
+              <Label htmlFor="isVisible" className="cursor-pointer font-bold uppercase tracking-wider">Show in Store</Label>
+            </div>
             <div className="space-y-4">
               <Label>Product Image {editingId && "(Leave empty to keep current image)"}</Label>
               <Input 
@@ -229,7 +247,7 @@ export default function AdminDashboard() {
             {editingId && (
               <Button type="button" variant="outline" onClick={() => {
                 setEditingId(null);
-                setNewProduct({ name: "", description: "", price: "", category: "", inStock: true });
+                setNewProduct({ name: "", description: "", price: "", category: "", inStock: true, quantity: "0", isVisible: true });
                 setImageFile(null);
                 setImagePreview(null);
               }}>
@@ -255,6 +273,8 @@ export default function AdminDashboard() {
                     <th className="px-4 py-3">Name</th>
                     <th className="px-4 py-3">Category</th>
                     <th className="px-4 py-3">Price</th>
+                    <th className="px-4 py-3">Qty</th>
+                    <th className="px-4 py-3">Visible</th>
                     <th className="px-4 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
@@ -265,6 +285,14 @@ export default function AdminDashboard() {
                       <td className="px-4 py-3 font-medium">{product.name}</td>
                       <td className="px-4 py-3">{product.category}</td>
                       <td className="px-4 py-3">{formatPrice(product.price)}</td>
+                      <td className="px-4 py-3 font-bold">{product.quantity}</td>
+                      <td className="px-4 py-3">
+                        {product.isVisible ? (
+                          <span className="text-green-600 font-bold uppercase text-xs">Yes</span>
+                        ) : (
+                          <span className="text-red-600 font-bold uppercase text-xs">No</span>
+                        )}
+                      </td>
                       <td className="px-4 py-3 flex gap-2 justify-end">
                         <Button variant="outline" size="sm" onClick={() => handleEditClick(product)}>Edit</Button>
                         <Button variant="destructive" size="sm" onClick={() => handleDeleteClick(product.id)}>Delete</Button>

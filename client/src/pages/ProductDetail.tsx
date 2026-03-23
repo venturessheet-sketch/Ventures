@@ -1,6 +1,6 @@
 import { useParams, Link } from "wouter";
 import { useState } from "react";
-import { ArrowLeft, Minus, Plus, ShoppingBag, Truck, RotateCcw } from "lucide-react";
+import { Minus, Plus, ShoppingBag } from "lucide-react";
 import { useProduct, useProducts } from "@/hooks/use-products";
 import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
@@ -17,7 +17,7 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
 
   const relatedProducts = allProducts
-    ?.filter((p) => p.id !== productId && p.category === product?.category)
+    ?.filter((p) => p.id !== productId && p.category === product?.category && p.isVisible)
     .slice(0, 4) || [];
 
   if (isError || !product) {
@@ -37,21 +37,7 @@ export default function ProductDetail() {
   };
 
   return (
-    <div className="pt-20 pb-24">
-      {/* Breadcrumb */}
-      <div className="border-b-2 border-black bg-[#C0C0C0] sticky top-20 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4 text-sm font-display uppercase tracking-widest font-bold">
-          <Link href="/shop" className="text-gray-600 hover:text-black flex items-center gap-1">
-            <ArrowLeft className="w-4 h-4" /> Shop
-          </Link>
-          <span className="text-gray-400">/</span>
-          <Link href={`/shop?category=${product.category}`} className="text-gray-600 hover:text-black">
-            {product.category}
-          </Link>
-          <span className="text-gray-400">/</span>
-          <span className="text-black truncate">{product.name}</span>
-        </div>
-      </div>
+    <div className="pt-28 pb-24">
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-24">
@@ -140,24 +126,6 @@ export default function ProductDetail() {
                   <p className="font-sans text-sm text-gray-600 mt-2">Restock coming soon. Follow our socials for updates.</p>
                 </div>
               )}
-            </div>
-
-            {/* Guarantees */}
-            <div className="grid grid-cols-2 gap-4 mt-8">
-              <div className="border-2 border-black p-4 flex items-start gap-3 bg-[#ADADAD]">
-                <Truck className="w-6 h-6 flex-shrink-0" />
-                <div>
-                  <h4 className="font-display font-bold uppercase">Free Shipping</h4>
-                  <p className="font-sans text-sm text-gray-600">Nationwide in Morocco</p>
-                </div>
-              </div>
-              <div className="border-2 border-black p-4 flex items-start gap-3 bg-[#ADADAD]">
-                <RotateCcw className="w-6 h-6 flex-shrink-0" />
-                <div>
-                  <h4 className="font-display font-bold uppercase">14-Day Returns</h4>
-                  <p className="font-sans text-sm text-gray-600">No questions asked</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>

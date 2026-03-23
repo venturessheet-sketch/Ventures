@@ -5,11 +5,13 @@ import { ProductCard } from "@/components/product/ProductCard";
 import heroImg1 from "@assets/FIT22_1771956770264.png";
 import heroImg2 from "@assets/fit_1771956770265.png";
 
+const DEFAULT_MARQUEE = "VENTURES CLOTHING // MOROCCO // QUALITY STREETWEAR //";
+
 export default function Home() {
-  const { data: products, isLoading } = useProducts();
+  const { data: allProducts, isLoading } = useProducts();
   
-  // Get 4 featured products (mock implementation: just take first 4)
-  const featuredProducts = products?.slice(0, 4) || [];
+  // Get 4 featured products (visible only)
+  const featuredProducts = allProducts?.filter(p => p.isVisible).slice(0, 4) || [];
 
   return (
     <div className="pt-20">
@@ -44,7 +46,7 @@ export default function Home() {
             <img 
               src={heroImg1} 
               alt="Streetwear model" 
-              className="absolute inset-0 w-full h-full object-cover object-top filter grayscale hover:grayscale-0 transition-all duration-700"
+              className="absolute inset-0 w-full h-full object-cover object-top transition-all duration-700"
             />
             <div className="absolute inset-0 bg-black/10"></div>
           </div>
@@ -52,7 +54,7 @@ export default function Home() {
             <img 
               src={heroImg2} 
               alt="Streetwear apparel" 
-              className="absolute inset-0 w-full h-full object-cover object-center filter grayscale hover:grayscale-0 transition-all duration-700"
+              className="absolute inset-0 w-full h-full object-cover object-center transition-all duration-700"
             />
             <div className="absolute inset-0 bg-black/10"></div>
           </div>
@@ -102,10 +104,10 @@ export default function Home() {
       <section className="border-y-4 border-black bg-[#FF7800] py-20 overflow-hidden">
         <div className="flex whitespace-nowrap animate-marquee">
           <h2 className="text-7xl md:text-9xl font-display font-black uppercase tracking-tighter text-black px-8">
-            VENTURES CLOTHING // MOROCCO // QUALITY STREETWEAR //
+            {DEFAULT_MARQUEE}
           </h2>
           <h2 className="text-7xl md:text-9xl font-display font-black uppercase tracking-tighter text-outline px-8">
-            VENTURES CLOTHING // MOROCCO // QUALITY STREETWEAR //
+            {DEFAULT_MARQUEE}
           </h2>
         </div>
       </section>

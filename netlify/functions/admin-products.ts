@@ -49,7 +49,7 @@ export default async (req: Request, context: Context) => {
     if (method === "POST") {
       const body = await req.json();
       
-      let { id, name, description, price, category, imageUrl, imageBase64, inStock } = body;
+      let { id, name, description, price, category, imageUrl, imageBase64, inStock, quantity, isVisible } = body;
 
       // 3. Upload Image to ImgBB if base64 data was provided
       if (imageBase64) {
@@ -81,11 +81,11 @@ export default async (req: Request, context: Context) => {
       // Append row
       await sheets.spreadsheets.values.append({
         spreadsheetId: sheetId,
-        range: "Sheet1!A1:G1", // Adjust to match the sheet name if changed.
+        range: "Sheet1!A1:I1", 
         valueInputOption: "USER_ENTERED",
         requestBody: {
           values: [
-             [id, name, description, price, category, imageUrl, inStock ? "TRUE" : "FALSE"]
+             [id, name, description, price, category, imageUrl, inStock ? "TRUE" : "FALSE", quantity, isVisible ? "TRUE" : "FALSE"]
           ],
         },
       });
@@ -133,7 +133,7 @@ export default async (req: Request, context: Context) => {
 
     if (method === "PUT") {
       const body = await req.json();
-      let { id, name, description, price, category, imageUrl, imageBase64, inStock } = body;
+      let { id, name, description, price, category, imageUrl, imageBase64, inStock, quantity, isVisible } = body;
 
       // Find the row to update
       const getResponse = await sheets.spreadsheets.values.get({
@@ -170,11 +170,11 @@ export default async (req: Request, context: Context) => {
 
       await sheets.spreadsheets.values.update({
         spreadsheetId: sheetId,
-        range: `Sheet1!A${actualRowNumber}:G${actualRowNumber}`,
+        range: `Sheet1!A${actualRowNumber}:I${actualRowNumber}`,
         valueInputOption: "USER_ENTERED",
         requestBody: {
           values: [
-             [id, name, description, price, category, imageUrl, inStock ? "TRUE" : "FALSE"]
+             [id, name, description, price, category, imageUrl, inStock ? "TRUE" : "FALSE", quantity, isVisible ? "TRUE" : "FALSE"]
           ],
         },
       });

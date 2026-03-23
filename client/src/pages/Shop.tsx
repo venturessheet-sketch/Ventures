@@ -9,7 +9,8 @@ export default function Shop() {
   const categoryParam = searchParams.get("category");
   
   const currentCategory = categoryParam || "All";
-  const { data: products, isLoading } = useProducts(currentCategory);
+  const { data: allProducts, isLoading } = useProducts(currentCategory);
+  const products = allProducts?.filter(p => p.isVisible);
   const [location, setLocation] = useLocation();
 
   const categories = ["All", "Hoodies", "Sweaters", "T-Shirts", "Regular Pants", "Baggy Pants", "Shorts", "Ensemble"];

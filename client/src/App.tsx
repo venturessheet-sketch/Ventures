@@ -13,8 +13,9 @@ import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
 
-import AdminLogin from "./pages/AdminLogin";
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminLogin from "@/pages/AdminLogin";
+import AdminDashboard from "@/pages/AdminDashboard";
+import Checkout from "@/pages/Checkout";
 
 function Router() {
   return (
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/shop" component={Shop} />
       <Route path="/product/:id" component={ProductDetail} />
+      <Route path="/checkout" component={Checkout} />
       <Route path="/55TYUBBN" component={AdminLogin} />
       <Route path="/55TYUBBN/dashboard" component={AdminDashboard} />
       <Route component={NotFound} />
