@@ -50,7 +50,7 @@ export function Navbar() {
             <span>HOUSE OF STREETWEAR</span>
             <span>🔥 NEW COLLECTION DROPPING SOON 🔥</span>
             <span>HOUSE OF STREETWEAR</span>
-            <span>🔥 FREE SHIPPING NATIONWIDE IN MOROCCO 🔥</span>
+            <span>🔥 SHIPPING NATIONWIDE IN MOROCCO 🔥</span>
             <span>HOUSE OF STREETWEAR</span>
           </div>
         </div>
