@@ -49,7 +49,7 @@ export default async (req: Request, context: Context) => {
     if (method === "POST") {
       const body = await req.json();
       
-      let { id, name, description, price, category, imageUrl, imageBase64, inStock, quantity, isVisible } = body;
+      let { id, name, description, details, price, category, imageUrl, imageBase64, inStock, quantity, isVisible } = body;
 
       // 3. Upload Image to ImgBB if base64 data was provided
       if (imageBase64) {
@@ -81,11 +81,11 @@ export default async (req: Request, context: Context) => {
       // Append row
       await sheets.spreadsheets.values.append({
         spreadsheetId: sheetId,
-        range: "Sheet1!A1:I1", 
+        range: "Sheet1!A1:J1", 
         valueInputOption: "USER_ENTERED",
         requestBody: {
           values: [
-             [id, name, description, price, category, imageUrl, inStock ? "TRUE" : "FALSE", quantity, isVisible ? "TRUE" : "FALSE"]
+             [id, name, description, price, category, imageUrl, inStock ? "TRUE" : "FALSE", quantity, isVisible ? "TRUE" : "FALSE", details || ""]
           ],
         },
       });
@@ -133,7 +133,7 @@ export default async (req: Request, context: Context) => {
 
     if (method === "PUT") {
       const body = await req.json();
-      let { id, name, description, price, category, imageUrl, imageBase64, inStock, quantity, isVisible } = body;
+      let { id, name, description, details, price, category, imageUrl, imageBase64, inStock, quantity, isVisible } = body;
 
       // Find the row to update
       const getResponse = await sheets.spreadsheets.values.get({
@@ -170,11 +170,11 @@ export default async (req: Request, context: Context) => {
 
       await sheets.spreadsheets.values.update({
         spreadsheetId: sheetId,
-        range: `Sheet1!A${actualRowNumber}:I${actualRowNumber}`,
+        range: `Sheet1!A${actualRowNumber}:J${actualRowNumber}`,
         valueInputOption: "USER_ENTERED",
         requestBody: {
           values: [
-             [id, name, description, price, category, imageUrl, inStock ? "TRUE" : "FALSE", quantity, isVisible ? "TRUE" : "FALSE"]
+             [id, name, description, price, category, imageUrl, inStock ? "TRUE" : "FALSE", quantity, isVisible ? "TRUE" : "FALSE", details || ""]
           ],
         },
       });

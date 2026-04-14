@@ -2,14 +2,49 @@ import { Link } from "wouter";
 import { ArrowRight, Zap } from "lucide-react";
 import { useProducts } from "@/hooks/use-products";
 import { ProductCard } from "@/components/product/ProductCard";
-import heroImg1 from "@assets/FIT22_1771956770264.png";
-import heroImg2 from "@assets/fit_1771956770265.png";
+import { useEffect, useState } from "react";
 
-const DEFAULT_MARQUEE = "VENTURES CLOTHING // MOROCCO // QUALITY STREETWEAR //";
+const GIRL_IMAGES = [
+  "/images/1.jpg",
+  "/images/2.jpg",
+];
+
+const MAN_IMAGES = [
+  "/images/3.jpg",
+  "/images/4.jpg",
+  "/images/FIT22_1771956770264.png",
+  "/images/fit_1771956770265.png",
+];
+
+const DEFAULT_HERO_MARQUEE = "VENTURES CLOTHING // MOROCCO // QUALITY STREETWEAR //";
 
 export default function Home() {
   const { data: allProducts, isLoading } = useProducts();
-  
+  const [heroMarquee, setHeroMarquee] = useState(DEFAULT_HERO_MARQUEE);
+  const [girlIndex, setGirlIndex] = useState(0);
+  const [manIndex, setManIndex] = useState(0);
+
+  // Auto-rotate hero images
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setGirlIndex((prev) => (prev + 1) % GIRL_IMAGES.length);
+      setManIndex((prev) => (prev + 1) % MAN_IMAGES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleNextImage = () => {
+    setGirlIndex((prev) => (prev + 1) % GIRL_IMAGES.length);
+    setManIndex((prev) => (prev + 1) % MAN_IMAGES.length);
+  };
+
+  useEffect(() => {
+    fetch("/api/site-settings")
+      .then(r => r.json())
+      .then(d => { if (d.heroMarquee) setHeroMarquee(d.heroMarquee); })
+      .catch(() => {});
+  }, []);
+
   // Get 4 featured products (visible only)
   const featuredProducts = allProducts?.filter(p => p.isVisible).slice(0, 4) || [];
 
@@ -41,27 +76,34 @@ export default function Home() {
         </div>
 
         {/* Right/Bottom Image Grid */}
-        <div className="flex-1 grid grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 relative overflow-hidden bg-gray-100">
-          <div className="relative border-r-4 lg:border-r-0 xl:border-r-4 lg:border-b-4 xl:border-b-0 border-black h-full min-h-[40vh]">
-            <img 
-              src={heroImg1} 
-              alt="Streetwear model" 
-              className="absolute inset-0 w-full h-full object-cover object-top transition-all duration-700"
-            />
-            <div className="absolute inset-0 bg-black/10"></div>
+        <div 
+          className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 relative overflow-hidden bg-[#C0C0C0] cursor-pointer group"
+          onClick={handleNextImage}
+        >
+          <div className="relative border-b-4 md:border-b-0 md:border-r-4 lg:border-r-0 lg:border-b-4 xl:border-b-0 xl:border-r-4 border-black h-full min-h-[40vh] overflow-hidden bg-[#C0C0C0]">
+            {GIRL_IMAGES.map((src, i) => (
+              <img 
+                key={`left-girl-${i}`} 
+                src={src} 
+                alt={`Streetwear model girl ${i+1}`} 
+                className={`absolute inset-0 w-full h-full object-cover object-top transition-all duration-1000 ease-in-out group-hover:scale-105 ${girlIndex === i ? 'opacity-100 z-10' : 'opacity-0 z-0'}`} />
+            ))}
+            <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/0 z-20"></div>
           </div>
-          <div className="relative h-full min-h-[40vh]">
-            <img 
-              src={heroImg2} 
-              alt="Streetwear apparel" 
-              className="absolute inset-0 w-full h-full object-cover object-center transition-all duration-700"
-            />
-            <div className="absolute inset-0 bg-black/10"></div>
+          <div className="relative h-full min-h-[40vh] overflow-hidden bg-[#C0C0C0]">
+            {MAN_IMAGES.map((src, i) => (
+              <img 
+                key={`right-man-${i}`} 
+                src={src} 
+                alt={`Streetwear model man ${i+1}`} 
+                className={`absolute inset-0 w-full h-full object-cover object-center transition-all duration-1000 ease-in-out group-hover:scale-105 ${manIndex === i ? 'opacity-100 z-10' : 'opacity-0 z-0'}`} />
+            ))}
+            <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/0 z-20"></div>
           </div>
           
-          {/* Central overlap badge (hidden on mobile) */}
-          <div className="hidden lg:flex absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 z-20 w-32 h-32 bg-white border-4 border-black rounded-full items-center justify-center brutalist-shadow animate-[spin_10s_linear_infinite]">
-            <div className="font-display font-black text-xl text-center leading-none">
+          {/* Central overlap badge */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 w-24 h-24 sm:w-32 sm:h-32 bg-[#C0C0C0] border-4 border-black rounded-full flex items-center justify-center brutalist-shadow animate-[spin_10s_linear_infinite]">
+            <div className="font-display font-black text-lg sm:text-xl text-center leading-none">
               NEW<br/>DROP
             </div>
           </div>
@@ -83,7 +125,7 @@ export default function Home() {
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="aspect-[3/4] bg-gray-200 animate-pulse border-2 border-gray-300"></div>
+              <div key={i} className="aspect-[3/4] bg-[#ADADAD] animate-pulse border-2 border-black"></div>
             ))}
           </div>
         ) : featuredProducts.length > 0 ? (
@@ -104,10 +146,10 @@ export default function Home() {
       <section className="border-y-4 border-black bg-[#FF7800] py-20 overflow-hidden">
         <div className="flex whitespace-nowrap animate-marquee">
           <h2 className="text-7xl md:text-9xl font-display font-black uppercase tracking-tighter text-black px-8">
-            {DEFAULT_MARQUEE}
+            {heroMarquee}
           </h2>
           <h2 className="text-7xl md:text-9xl font-display font-black uppercase tracking-tighter text-outline px-8">
-            {DEFAULT_MARQUEE}
+            {heroMarquee}
           </h2>
         </div>
       </section>

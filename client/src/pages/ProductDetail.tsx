@@ -15,6 +15,7 @@ export default function ProductDetail() {
   const { addItem } = useCartStore();
 
   const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState<string>("");
 
   const relatedProducts = allProducts
     ?.filter((p) => p.id !== productId && p.category === product?.category && p.isVisible)
@@ -33,7 +34,7 @@ export default function ProductDetail() {
   }
 
   const handleAddToCart = () => {
-    addItem(product, quantity);
+    addItem(product, quantity, selectedSize);
   };
 
   return (
@@ -77,6 +78,39 @@ export default function ProductDetail() {
             <div className="prose prose-lg font-sans text-gray-700 mb-12">
               <p>{product.description}</p>
             </div>
+
+            {product.details && (
+              <div className="border-t-2 border-black pt-6 mt-2">
+                <h3 className="font-display font-bold text-sm uppercase tracking-widest mb-3 text-gray-500">Product Details</h3>
+                <p className="font-sans text-gray-700 whitespace-pre-line leading-relaxed">{product.details}</p>
+              </div>
+            )}
+
+            {/* Size Selector */}
+            {product.inStock && (
+              <div className="mt-8 mb-4">
+                <div className="flex justify-between items-end mb-3">
+                  <h3 className="font-display font-bold text-sm uppercase tracking-widest text-gray-500">Select Size</h3>
+                </div>
+                <div className="flex gap-3 flex-wrap">
+                  {["S", "M", "L", "XL"].map((size) => (
+                    <label key={size} className="cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="size" 
+                        value={size} 
+                        checked={selectedSize === size} 
+                        onChange={(e) => setSelectedSize(e.target.value)} 
+                        className="sr-only peer" 
+                      />
+                      <div className="w-14 h-14 flex items-center justify-center border-2 border-black font-display font-bold text-xl bg-[#C0C0C0] peer-checked:bg-black peer-checked:text-[#C0C0C0] transition-colors brutalist-shadow-sm peer-checked:brutalist-shadow-none peer-checked:translate-x-[2px] peer-checked:translate-y-[2px] hover:bg-gray-300">
+                        {size}
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Action Area */}
             <div className="mt-auto bg-[#ADADAD] border-4 border-black p-6 brutalist-shadow">

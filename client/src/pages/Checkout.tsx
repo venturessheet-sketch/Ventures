@@ -8,13 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ShoppingBag, ArrowLeft, Loader2, Ruler } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 
 export default function Checkout() {
   const [, setLocation] = useLocation();
@@ -22,7 +16,6 @@ export default function Checkout() {
   const [fullName, setFullName] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
-  const [size, setSize] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
@@ -41,7 +34,7 @@ export default function Checkout() {
   if (items.length === 0 && !isSubmitting) {
     return (
       <div className="container mx-auto pt-32 pb-20 px-4 text-center">
-        <div className="max-w-md mx-auto border-4 border-black p-12 brutalist-shadow bg-white">
+        <div className="max-w-md mx-auto border-4 border-black p-12 brutalist-shadow bg-[#C0C0C0]">
           <ShoppingBag className="w-16 h-16 mx-auto mb-6" />
           <h1 className="text-3xl font-display font-black uppercase mb-4">Your cart is empty</h1>
           <p className="text-gray-500 mb-8 font-sans">You need to add some products before checking out.</p>
@@ -55,8 +48,8 @@ export default function Checkout() {
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName || !address || !phone || !size) {
-      toast({ title: "Validation Error", description: "Please fill in all fields (including size).", variant: "destructive" });
+    if (!fullName || !address || !phone) {
+      toast({ title: "Validation Error", description: "Please fill in all required fields.", variant: "destructive" });
       return;
     }
 
@@ -70,11 +63,11 @@ export default function Checkout() {
           fullName,
           address,
           phone,
-          size,
           items: items.map(i => ({ 
             name: i.product.name, 
             quantity: i.quantity,
-            price: i.product.price 
+            price: i.product.price,
+            size: i.size || "Unspecified"
           })),
           total: total
         })
@@ -86,11 +79,10 @@ export default function Checkout() {
       const number = import.meta.env.VITE_WHATSAPP_NUMBER || "212600000000";
       let text = `*NEW ORDER FROM ${fullName.toUpperCase()}*\n`;
       text += ` Phone: ${phone}\n`;
-      text += ` Address: ${address}\n`;
-      text += ` Preferred Size: ${size}\n\n`;
+      text += ` Address: ${address}\n\n`;
       text += "Order Details:\n";
       items.forEach(item => {
-        text += `• ${item.quantity}x ${item.product.name} - ${formatPrice(item.product.price * item.quantity)}\n`;
+        text += `• ${item.quantity}x ${item.product.name} ${item.size ? `[Size: ${item.size}]` : `[NO SIZE SELECTED]`} - ${formatPrice(item.product.price * item.quantity)}\n`;
       });
       text += `\n*TOTAL: ${formatPrice(total)}*`;
 
@@ -124,7 +116,7 @@ export default function Checkout() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Checkout Form */}
-        <div className="bg-white border-4 border-black p-8 brutalist-shadow order-2 lg:order-1">
+        <div className="bg-[#C0C0C0] border-4 border-black p-8 brutalist-shadow order-2 lg:order-1">
           <h2 className="text-3xl font-display font-black uppercase mb-8 border-b-4 border-black pb-4">Customer Information</h2>
           <form onSubmit={handleCheckout} className="space-y-6">
             <div className="space-y-2">
@@ -148,21 +140,7 @@ export default function Checkout() {
                 className="h-14 border-2 border-black font-display font-bold brutalist-shadow-xs"
               />
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-display uppercase font-bold tracking-widest text-gray-500">Preferred Size</Label>
-              <Select required value={size} onValueChange={setSize}>
-                <SelectTrigger className="h-14 border-2 border-black font-display font-bold brutalist-shadow-xs">
-                  <SelectValue placeholder="SELECT YOUR SIZE" />
-                </SelectTrigger>
-                <SelectContent className="border-2 border-black font-display">
-                  <SelectItem value="S">SMALL (S)</SelectItem>
-                  <SelectItem value="M">MEDIUM (M)</SelectItem>
-                  <SelectItem value="L">LARGE (L)</SelectItem>
-                  <SelectItem value="XL">EXTRA LARGE (XL)</SelectItem>
-                  <SelectItem value="XXL">DOUBLE EXTRA LARGE (XXL)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+
             <div className="space-y-2">
               <Label className="text-sm font-display uppercase font-bold tracking-widest text-gray-500">Full Address</Label>
               <Textarea 
@@ -199,13 +177,20 @@ export default function Checkout() {
             <h2 className="text-3xl font-display font-black uppercase mb-8 border-b-4 border-black pb-4">Order Summary</h2>
             <div className="bg-[#ADADAD] border-4 border-black p-6 brutalist-shadow-sm space-y-4">
               {items.map((item) => (
-                <div key={item.product.id} className="flex gap-4 items-center border-b-2 border-black pb-4 last:border-b-0 last:pb-0">
-                  <div className="w-16 h-16 bg-white border-2 border-black flex-shrink-0 overflow-hidden">
+                <div key={item.cartItemId} className="flex gap-4 items-center border-b-2 border-black pb-4 last:border-b-0 last:pb-0">
+                  <div className="w-16 h-16 bg-[#C0C0C0] border-2 border-black flex-shrink-0 overflow-hidden">
                     <img src={item.product.imageUrl} alt={item.product.name} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1">
                     <h4 className="font-display font-bold uppercase leading-tight line-clamp-1">{item.product.name}</h4>
-                    <p className="text-sm text-gray-600 font-sans">Qty: {item.quantity}</p>
+                    <div className="flex flex-wrap gap-2 mt-1 items-center">
+                      <span className="text-gray-700 font-sans text-sm">Qty: {item.quantity}</span>
+                      {item.size ? (
+                        <span className="text-[#C0C0C0] font-display text-xs font-bold tracking-widest bg-black px-1.5 border border-black uppercase">Size {item.size}</span>
+                      ) : (
+                        <span className="text-red-700 font-sans text-xs font-bold border border-red-700 px-1.5 uppercase tracking-wider bg-red-100">No Size!</span>
+                      )}
+                    </div>
                   </div>
                   <p className="font-display font-bold">{formatPrice(item.product.price * item.quantity)}</p>
                 </div>

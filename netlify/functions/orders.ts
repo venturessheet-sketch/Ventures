@@ -8,7 +8,7 @@ export default async (req: Request, context: Context) => {
 
   try {
     const body = await req.json();
-    const { fullName, address, phone, size, items, total } = body;
+    const { fullName, address, phone, items, total } = body;
 
     // 1. Google Sheets Setup
     const sheetId = process.env.GOOGLE_ORDERS_SHEET_ID || process.env.GOOGLE_SHEET_ID;
@@ -36,22 +36,29 @@ export default async (req: Request, context: Context) => {
 
     const sheets = google.sheets({ version: "v4", auth });
 
-    // 2. Prepare Order Summary String
-    const orderSummary = items
-      .map((item: any) => `${item.name} (${item.quantity}x)`)
-      .join(", ");
-
+    // 2. Prepare Rows for Google Sheets
     const timestamp = new Date().toLocaleString("en-GB", { timeZone: "UTC" });
 
-    // 3. Append to "Orders" Sheet (Contains both client and order info)
+    const rows = items.map((item: any) => {
+      const itemTotal = item.price * item.quantity;
+      return [
+        timestamp,
+        fullName,
+        phone,
+        address,
+        item.size || "None",
+        `${item.name} (${item.quantity}x)`,
+        `${itemTotal.toFixed(2)} DH`
+      ];
+    });
+
+    // 3. Append to "Orders" Sheet
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
       range: "Orders!A:G", 
       valueInputOption: "USER_ENTERED",
       requestBody: {
-        values: [
-          [timestamp, fullName, phone, address, size, orderSummary, `${(total / 100).toFixed(2)} DH`]
-        ],
+        values: rows,
       },
     });
 

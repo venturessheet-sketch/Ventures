@@ -1,3 +1,5 @@
+import { Instagram, Mail } from "lucide-react";
+
 const INSTAGRAM_URL = "https://www.instagram.com/ventures.ma?igsh=MTBnazB5ZHY4amR0YQ==";
 
 export function Footer() {
@@ -31,10 +33,17 @@ export function Footer() {
           <div>
             <h3 className="font-display font-bold text-xl tracking-widest uppercase mb-6 border-b-2 border-gray-800 pb-2 inline-block">Support</h3>
             <ul className="space-y-4 font-sans text-gray-400">
-              <li><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="hover:text-[#C0C0C0] transition-colors hover:pl-2">FAQ</a></li>
               <li><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="hover:text-[#C0C0C0] transition-colors hover:pl-2">Shipping &amp; Returns</a></li>
-              <li><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="hover:text-[#C0C0C0] transition-colors hover:pl-2">Size Guide</a></li>
-              <li><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="hover:text-[#C0C0C0] transition-colors hover:pl-2">Contact Us</a></li>
+              <li>
+                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-[#C0C0C0] transition-colors hover:pl-2">
+                  <Instagram className="w-4 h-4" /> Instagram
+                </a>
+              </li>
+              <li>
+                <a href="mailto:venturesclothingma@gmail.com" className="flex items-center gap-2 hover:text-[#C0C0C0] transition-colors hover:pl-2">
+                  <Mail className="w-4 h-4" /> Email Us
+                </a>
+              </li>
             </ul>
           </div>
 

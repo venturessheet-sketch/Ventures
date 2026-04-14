@@ -21,6 +21,15 @@ export function Navbar() {
     { name: "Ensemble", path: "/shop?category=Ensemble" },
   ];
 
+  const [navMarquee, setNavMarquee] = useState("HOUSE OF STREETWEAR // 🔥 NEW COLLECTION DROPPING SOON 🔥");
+
+  useEffect(() => {
+    fetch("/api/site-settings")
+      .then(r => r.json())
+      .then(d => { if (d.navMarquee) setNavMarquee(d.navMarquee); })
+      .catch(() => {});
+  }, []);
+
   // Handle scroll for sticky border effect
   useEffect(() => {
     const handleScroll = () => {
@@ -43,22 +52,18 @@ export function Navbar() {
           isScrolled ? "border-b-2 border-black brutalist-shadow-sm" : "border-b-2 border-transparent"
         )}
       >
-        {/* Top Announcement Bar */}
         <div className="bg-black text-white py-1.5 overflow-hidden flex whitespace-nowrap">
           <div className="animate-marquee flex gap-8 text-xs font-display uppercase tracking-widest">
-            <span>🔥 FREE SHIPPING NATIONWIDE IN MOROCCO 🔥</span>
-            <span>HOUSE OF STREETWEAR</span>
-            <span>🔥 NEW COLLECTION DROPPING SOON 🔥</span>
-            <span>HOUSE OF STREETWEAR</span>
-            <span>🔥 FREE SHIPPING NATIONWIDE IN MOROCCO 🔥</span>
-            <span>HOUSE OF STREETWEAR</span>
+            <span>{navMarquee}</span>
+            <span>{navMarquee}</span>
+            <span>{navMarquee}</span>
           </div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           {/* Mobile Menu Button */}
           <button 
-            className="md:hidden p-2 hover:bg-gray-100 border-2 border-transparent hover:border-black transition-colors"
+            className="md:hidden p-2 hover:bg-[#ADADAD] border-2 border-transparent hover:border-black transition-colors"
             onClick={() => setIsMobileMenuOpen(true)}
           >
             <Menu className="w-6 h-6" />

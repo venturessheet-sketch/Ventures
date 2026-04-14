@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
 export function CartDrawer() {
-  const { isOpen, setIsOpen, items, removeItem, updateQuantity, getTotal, clearCart } = useCartStore();
+  const { isOpen, setIsOpen, items, removeItem, updateQuantity, updateSize, getTotal, clearCart } = useCartStore();
   const [, setLocation] = useLocation();
 
   const handleCheckout = () => {
@@ -72,9 +72,9 @@ export function CartDrawer() {
               ) : (
                 <div className="space-y-6">
                   {items.map((item) => (
-                    <div key={item.product.id} className="flex gap-4 p-4 bg-[#C0C0C0] border-2 border-black brutalist-shadow-sm">
+                    <div key={item.cartItemId} className="flex gap-4 p-4 bg-[#C0C0C0] border-2 border-black brutalist-shadow-sm">
                       {/* Image */}
-                      <div className="w-24 h-24 bg-gray-100 border-2 border-black flex-shrink-0 overflow-hidden">
+                      <div className="w-24 h-24 bg-[#ADADAD] border-2 border-black flex-shrink-0 overflow-hidden">
                         <img 
                           src={item.product.imageUrl} 
                           alt={item.product.name} 
@@ -90,9 +90,22 @@ export function CartDrawer() {
                               {item.product.name}
                             </h4>
                             <p className="text-sm text-gray-500 font-sans mt-1">{item.product.category}</p>
+                            <div className="mt-2">
+                              <select
+                                value={item.size || ""}
+                                onChange={(e) => updateSize(item.cartItemId, e.target.value)}
+                                className={`font-display text-xs font-bold uppercase tracking-widest px-2 py-1 outline-none cursor-pointer border ${item.size ? 'bg-black text-[#C0C0C0] border-black' : 'bg-red-200 text-red-800 border-red-800 animate-pulse'}`}
+                              >
+                                <option value="" disabled>CHOOSE SIZE</option>
+                                <option value="S">SIZE: S</option>
+                                <option value="M">SIZE: M</option>
+                                <option value="L">SIZE: L</option>
+                                <option value="XL">SIZE: XL</option>
+                              </select>
+                            </div>
                           </div>
                           <button 
-                            onClick={() => removeItem(item.product.id)}
+                            onClick={() => removeItem(item.cartItemId)}
                             className="p-1.5 text-gray-400 hover:text-red-600 transition-colors"
                           >
                             <Trash2 className="w-5 h-5" />
@@ -102,8 +115,8 @@ export function CartDrawer() {
                         <div className="flex justify-between items-end mt-4">
                           <div className="flex items-center border-2 border-black">
                             <button 
-                              onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                              className="px-3 py-1 hover:bg-gray-100 transition-colors"
+                              onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
+                              className="px-3 py-1 hover:bg-[#ADADAD] transition-colors"
                             >
                               <Minus className="w-4 h-4" />
                             </button>
@@ -111,8 +124,8 @@ export function CartDrawer() {
                               {item.quantity}
                             </span>
                             <button 
-                              onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                              className="px-3 py-1 hover:bg-gray-100 transition-colors"
+                              onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
+                              className="px-3 py-1 hover:bg-[#ADADAD] transition-colors"
                             >
                               <Plus className="w-4 h-4" />
                             </button>
@@ -131,6 +144,14 @@ export function CartDrawer() {
             {/* Footer */}
             {items.length > 0 && (
               <div className="border-t-4 border-black p-6 bg-[#C0C0C0]">
+              {/* Free Shipping Banner */}
+              {items.reduce((sum, i) => sum + i.quantity, 0) >= 2 && (
+                <div className="flex items-center gap-2 bg-black text-white px-4 py-2.5 mb-4 border-2 border-black">
+                  <span className="text-base"></span>
+                  <span className="font-display font-bold uppercase tracking-widest text-sm">Free Shipping Unlocked!</span>
+                </div>
+              )}
+
                 <div className="flex justify-between items-center mb-6">
                   <span className="font-display text-xl uppercase tracking-wider text-gray-500">Subtotal</span>
                   <span className="font-display font-black text-3xl">{formatPrice(getTotal())}</span>

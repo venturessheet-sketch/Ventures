@@ -23,6 +23,17 @@ export default function Shop() {
     }
   };
 
+  const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+    "All": "Browse our full range of raw, urban-inspired pieces. Designed for comfort, built for the streets.",
+    "Hoodies": "Premium heavyweight hoodies crafted for the colder days. Raw aesthetic, maximum comfort.",
+    "Sweaters": "Urban knitwear and crews. Minimalist street style for versatile layering.",
+    "T-Shirts": "Essential streetwear tees. High-quality cotton, oversized fits, bold graphics.",
+    "Regular Pants": "Everyday utility pants. Durable fabrics, straight cuts, uncompromised style.",
+    "Baggy Pants": "The quintessential street silhouette. Loose fits, rugged materials, maximum statement.",
+    "Shorts": "Summer-ready streetwear. Breathable fabrics with our signature brutalist edge.",
+    "Ensemble": "Coordinated sets for a complete look. Effortless, striking, and undeniably urban."
+  };
+
   return (
     <div className="pt-20 min-h-screen pb-24">
       {/* Header */}
@@ -32,7 +43,7 @@ export default function Shop() {
             {currentCategory === "All" ? "Collection" : currentCategory}
           </h1>
           <p className="font-sans text-gray-400 mt-4 max-w-xl text-lg">
-            Browse our full range of raw, urban-inspired pieces. Designed for comfort, built for the streets.
+            {CATEGORY_DESCRIPTIONS[currentCategory] || CATEGORY_DESCRIPTIONS["All"]}
           </p>
         </div>
       </div>
@@ -74,7 +85,7 @@ export default function Shop() {
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="aspect-[3/4] bg-gray-100 animate-pulse border-2 border-gray-200"></div>
+              <div key={i} className="aspect-[3/4] bg-[#ADADAD] animate-pulse border-2 border-black"></div>
               ))}
             </div>
           ) : products && products.length > 0 ? (

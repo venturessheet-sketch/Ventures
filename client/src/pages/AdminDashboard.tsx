@@ -4,6 +4,7 @@ import { useProducts } from "@/hooks/use-products";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -33,15 +34,26 @@ export default function AdminDashboard() {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [newProduct, setNewProduct] = useState({
-    name: "", description: "", price: "", category: "", inStock: true, quantity: "0", isVisible: true
+    name: "", description: "", details: "", price: "", category: "", inStock: true, quantity: "0", isVisible: true
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  // Settings State
+  const [settings, setSettings] = useState({
+    navMarquee: "", heroMarquee: ""
+  });
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("admin_token");
     if (!token) setLocation("/55TYUBBN");
     else setIsAuthorized(true);
+
+    fetch("/api/site-settings")
+      .then(res => res.json())
+      .then(data => setSettings({ navMarquee: data.navMarquee || "", heroMarquee: data.heroMarquee || "" }))
+      .catch(console.error);
   }, [setLocation]);
 
   const handleLogout = () => {
@@ -105,8 +117,8 @@ export default function AdminDashboard() {
           id: nextId,
           name: newProduct.name,
           description: newProduct.description,
-          // Convert DH to cents for storage
-          price: Math.round(parseFloat(newProduct.price.toString()) * 100),
+          details: newProduct.details,
+          price: parseFloat(newProduct.price.toString()) || 0,
           category: newProduct.category,
           imageBase64: imageBase64,
           imageUrl: imageUrl,
@@ -118,7 +130,7 @@ export default function AdminDashboard() {
 
       if (response.ok) {
         toast({ title: "Success", description: `Product ${editingId ? "updated" : "added"} successfully!` });
-        setNewProduct({ name: "", description: "", price: "", category: "", inStock: true, quantity: "0", isVisible: true });
+        setNewProduct({ name: "", description: "", details: "", price: "", category: "", inStock: true, quantity: "0", isVisible: true });
         setImageFile(null);
         setImagePreview(null);
         setEditingId(null);
@@ -139,8 +151,8 @@ export default function AdminDashboard() {
     setNewProduct({
       name: product.name,
       description: product.description,
-      // Convert cents to DH for display
-      price: (product.price / 100).toString(),
+      details: product.details || "",
+      price: product.price.toString(),
       category: product.category,
       inStock: product.inStock,
       quantity: product.quantity.toString(),
@@ -167,6 +179,25 @@ export default function AdminDashboard() {
       }
     } catch (e) {
       toast({ title: "Error", description: "Failed to delete product.", variant: "destructive" });
+    }
+  };
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem("admin_token");
+    setIsSavingSettings(true);
+    try {
+      const response = await fetch("/api/site-settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify(settings)
+      });
+      if (response.ok) toast({ title: "Success", description: "Site settings saved successfully!" });
+      else throw new Error();
+    } catch {
+      toast({ title: "Error", description: "Failed to save settings", variant: "destructive" });
+    } finally {
+      setIsSavingSettings(false);
     }
   };
 
@@ -239,6 +270,10 @@ export default function AdminDashboard() {
               <Label>Description</Label>
               <Input value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} placeholder="A really nice shirt." />
             </div>
+            <div className="space-y-2 md:col-span-2">
+              <Label>Product Details <span className="text-muted-foreground font-normal">(specs, materials, care info…)</span></Label>
+              <Textarea value={newProduct.details} onChange={e => setNewProduct({...newProduct, details: e.target.value})} placeholder="100% Cotton. Machine wash cold. Do not tumble dry." className="min-h-[100px]" />
+            </div>
           </div>
           <div className="flex gap-4">
             <Button type="submit" disabled={isAdding}>
@@ -247,7 +282,7 @@ export default function AdminDashboard() {
             {editingId && (
               <Button type="button" variant="outline" onClick={() => {
                 setEditingId(null);
-                setNewProduct({ name: "", description: "", price: "", category: "", inStock: true, quantity: "0", isVisible: true });
+                setNewProduct({ name: "", description: "", details: "", price: "", category: "", inStock: true, quantity: "0", isVisible: true });
                 setImageFile(null);
                 setImagePreview(null);
               }}>
@@ -304,6 +339,32 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Site Settings Section */}
+      <div className="bg-card rounded-lg shadow border p-6 mb-8 mt-12">
+        <h2 className="text-xl font-semibold mb-4">Site Settings (Marquees)</h2>
+        <form onSubmit={handleSaveSettings} className="space-y-4">
+          <div className="space-y-2">
+            <Label>Top Navigation Bar Text (Black Band)</Label>
+            <Input 
+              value={settings.navMarquee} 
+              onChange={e => setSettings({...settings, navMarquee: e.target.value})} 
+              placeholder="HOUSE OF STREETWEAR // 🔥 NEW COLLECTION DROPPING SOON 🔥" 
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Hero Section Text (Orange Band)</Label>
+            <Input 
+              value={settings.heroMarquee} 
+              onChange={e => setSettings({...settings, heroMarquee: e.target.value})} 
+              placeholder="VENTURES CLOTHING // MOROCCO // QUALITY STREETWEAR //" 
+            />
+          </div>
+          <Button type="submit" disabled={isSavingSettings}>
+            {isSavingSettings ? "Saving Settings..." : "Save Settings"}
+          </Button>
+        </form>
       </div>
     </div>
   );
