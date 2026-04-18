@@ -78,7 +78,7 @@ export function CartDrawer() {
                         <img 
                           src={item.product.imageUrl} 
                           alt={item.product.name} 
-                          className="w-full h-full object-cover object-center mix-blend-multiply"
+                          className="w-full h-full object-contain"
                         />
                       </div>
                       

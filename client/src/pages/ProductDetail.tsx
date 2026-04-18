@@ -49,7 +49,7 @@ export default function ProductDetail() {
               <img
                 src={product.imageUrl}
                 alt={product.name}
-                className="w-full h-full object-cover object-center mix-blend-multiply transition-transform duration-700 hover:scale-105 cursor-zoom-in"
+                className="w-full h-full object-contain mix-blend-multiply transition-transform duration-700 hover:scale-105 cursor-zoom-in"
               />
               {!product.inStock && (
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-sm">

@@ -51,7 +51,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <img
           src={product.imageUrl}
           alt={product.name}
-          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out mix-blend-multiply"
+          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 ease-out mix-blend-multiply"
         />
 
         {/* Quick Add Button */}

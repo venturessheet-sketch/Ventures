@@ -262,7 +262,7 @@ export default function AdminDashboard() {
               />
               {imagePreview && (
                 <div className="mt-2 w-full max-w-[200px] border rounded-md overflow-hidden aspect-square">
-                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  <img src={imagePreview} alt="Preview" className="w-full h-full object-contain" />
                 </div>
               )}
             </div>
