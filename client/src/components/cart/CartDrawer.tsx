@@ -101,6 +101,7 @@ export function CartDrawer() {
                                 <option value="M">SIZE: M</option>
                                 <option value="L">SIZE: L</option>
                                 <option value="XL">SIZE: XL</option>
+                                <option value="XXL">SIZE: XXL</option>
                               </select>
                             </div>
                           </div>

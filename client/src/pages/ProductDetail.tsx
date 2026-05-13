@@ -16,6 +16,9 @@ export default function ProductDetail() {
 
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [selectedSize, setSelectedSize] = useState<string>("");
+
+  const SIZES = ["S", "M", "L", "XL", "XXL"];
 
   const relatedProducts = allProducts
     ?.filter((p) => p.id !== productId && p.category === product?.category)
@@ -37,7 +40,8 @@ export default function ProductDetail() {
   const hasMultipleImages = imageUrls.length > 1;
 
   const handleAddToCart = () => {
-    addItem(product, quantity);
+    if (!selectedSize) return;
+    addItem(product, quantity, selectedSize);
   };
 
   const goToPrev = () => {
@@ -78,7 +82,7 @@ export default function ProductDetail() {
                   key={index}
                   src={url}
                   alt={`${product.name} - Image ${index + 1}`}
-                  className={`absolute inset-0 w-full h-full object-cover object-center mix-blend-multiply transition-opacity duration-500 ease-in-out ${
+                  className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-500 ease-in-out ${
                     index === activeImageIndex ? "opacity-100" : "opacity-0"
                   }`}
                 />
@@ -135,7 +139,7 @@ export default function ProductDetail() {
                     <img
                       src={url}
                       alt={`Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover object-center mix-blend-multiply"
+                      className="w-full h-full object-cover object-center"
                     />
                   </button>
                 ))}
@@ -165,6 +169,29 @@ export default function ProductDetail() {
             <div className="mt-auto bg-[#ADADAD] border-4 border-black p-6 brutalist-shadow">
               {product.inStock ? (
                 <div className="space-y-6">
+                  {/* Size Selector */}
+                  <div>
+                    <span className="font-display font-bold uppercase tracking-widest text-lg block mb-3">Size</span>
+                    <div className="flex flex-wrap gap-3">
+                      {SIZES.map((size) => (
+                        <button
+                          key={size}
+                          onClick={() => setSelectedSize(size)}
+                          className={`min-w-[3.5rem] px-4 py-3 border-2 border-black font-display font-bold text-lg uppercase tracking-wider transition-all duration-200 ${
+                            selectedSize === size
+                              ? "bg-black text-[#C0C0C0] brutalist-shadow-sm -translate-y-0.5"
+                              : "bg-[#C0C0C0] text-black hover:bg-black hover:text-[#C0C0C0]"
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                    {!selectedSize && (
+                      <p className="text-red-600 font-sans text-sm mt-2 font-bold animate-pulse">↑ Please select a size</p>
+                    )}
+                  </div>
+
                   {/* Quantity Selector */}
                   <div className="flex items-center justify-between">
                     <span className="font-display font-bold uppercase tracking-widest text-lg">Quantity</span>
@@ -190,7 +217,12 @@ export default function ProductDetail() {
                   {/* Add to Cart Button */}
                   <button
                     onClick={handleAddToCart}
-                    className="w-full hover-brutalist bg-black text-[#C0C0C0] py-6 font-display text-2xl font-bold uppercase tracking-widest flex items-center justify-center gap-3 relative overflow-hidden group"
+                    disabled={!selectedSize}
+                    className={`w-full hover-brutalist py-6 font-display text-2xl font-bold uppercase tracking-widest flex items-center justify-center gap-3 relative overflow-hidden group ${
+                      selectedSize
+                        ? "bg-black text-[#C0C0C0]"
+                        : "bg-gray-400 text-gray-600 cursor-not-allowed border-gray-500"
+                    }`}
                   >
                     <span className="relative z-10 flex items-center gap-3">
                       <ShoppingBag className="w-6 h-6" strokeWidth={3} />

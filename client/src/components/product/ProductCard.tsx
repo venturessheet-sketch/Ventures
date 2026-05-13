@@ -69,7 +69,7 @@ export function ProductCard({ product }: ProductCardProps) {
             key={index}
             src={url}
             alt={`${product.name}${imageUrls.length > 1 ? ` - ${index + 1}` : ''}`}
-            className={`absolute inset-0 w-full h-full object-cover object-center mix-blend-multiply transition-opacity duration-400 ease-in-out ${
+            className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-400 ease-in-out ${
               index === activeIndex ? "opacity-100" : "opacity-0"
             }`}
           />
