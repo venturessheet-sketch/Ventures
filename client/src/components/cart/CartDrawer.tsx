@@ -76,7 +76,7 @@ export function CartDrawer() {
                       {/* Image */}
                       <div className="w-24 h-24 bg-[#ADADAD] border-2 border-black flex-shrink-0 overflow-hidden">
                         <img 
-                          src={item.product.imageUrl} 
+                          src={item.product.imageUrls?.[0] || item.product.imageUrl} 
                           alt={item.product.name} 
                           className="w-full h-full object-contain"
                         />

@@ -45,38 +45,55 @@ export default async (req: Request, context: Context) => {
 
   const sheets = google.sheets({ version: "v4", auth });
 
+  // Helper: upload a single base64 image to ImgBB, returns the URL
+  async function uploadToImgBB(base64Data: string): Promise<string> {
+    const imgbbKey = process.env.IMGBB_API_KEY;
+    if (!imgbbKey) {
+      throw new Error("Server missing IMGBB_API_KEY for image uploads.");
+    }
+
+    const formData = new URLSearchParams();
+    const cleanBase64 = base64Data.replace(/^data:image\/[a-z]+;base64,/, "");
+    formData.append("image", cleanBase64);
+    formData.append("key", imgbbKey);
+
+    const imgbbResponse = await fetch("https://api.imgbb.com/1/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!imgbbResponse.ok) {
+      console.error("ImgBB Upload Failed:", await imgbbResponse.text());
+      throw new Error("Failed to upload image to ImgBB.");
+    }
+
+    const imgbbData = await imgbbResponse.json();
+    return imgbbData.data.url;
+  }
+
   try {
     if (method === "POST") {
       const body = await req.json();
       
-      let { id, name, description, details, price, category, imageUrl, imageBase64, inStock, quantity, isVisible } = body;
+      let { id, name, description, details, price, category, imageBase64, imageBase64List, inStock, quantity, isVisible } = body;
 
-      // 3. Upload Image to ImgBB if base64 data was provided
-      if (imageBase64) {
-        const imgbbKey = process.env.IMGBB_API_KEY;
-        if (!imgbbKey) {
-          return Response.json({ message: "Server missing IMGBB_API_KEY for image uploads." }, { status: 500 });
-        }
+      // Upload images to ImgBB
+      let imageUrls: string[] = [];
 
-        const formData = new URLSearchParams();
-        // Remove the data:image/jpeg;base64, prefix if present
-        const cleanBase64 = imageBase64.replace(/^data:image\/[a-z]+;base64,/, "");
-        formData.append("image", cleanBase64);
-        formData.append("key", imgbbKey);
+      // Support both single (legacy) and multi-image upload
+      const base64Items: string[] = imageBase64List || (imageBase64 ? [imageBase64] : []);
 
-        const imgbbResponse = await fetch("https://api.imgbb.com/1/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!imgbbResponse.ok) {
-          console.error("ImgBB Upload Failed:", await imgbbResponse.text());
-          return Response.json({ message: "Failed to upload image to ImgBB." }, { status: 500 });
-        }
-
-        const imgbbData = await imgbbResponse.json();
-        imageUrl = imgbbData.data.url; // Overwrite the placeholder url with the real newly hosted one
+      if (base64Items.length > 0) {
+        // Upload all images in parallel
+        imageUrls = await Promise.all(base64Items.map(b64 => uploadToImgBB(b64)));
       }
+
+      if (imageUrls.length === 0) {
+        return Response.json({ message: "At least one image is required." }, { status: 400 });
+      }
+
+      // Store as pipe-delimited string
+      const imageUrlField = imageUrls.join("|");
 
       // Append row
       await sheets.spreadsheets.values.append({
@@ -85,7 +102,7 @@ export default async (req: Request, context: Context) => {
         valueInputOption: "USER_ENTERED",
         requestBody: {
           values: [
-             [id, name, description, price, category, imageUrl, inStock ? "TRUE" : "FALSE", quantity, isVisible ? "TRUE" : "FALSE", details || ""]
+             [id, name, description, price, category, imageUrlField, inStock ? "TRUE" : "FALSE", quantity, isVisible ? "TRUE" : "FALSE", details || ""]
           ],
         },
       });
@@ -133,7 +150,7 @@ export default async (req: Request, context: Context) => {
 
     if (method === "PUT") {
       const body = await req.json();
-      let { id, name, description, details, price, category, imageUrl, imageBase64, inStock, quantity, isVisible } = body;
+      let { id, name, description, details, price, category, imageBase64, imageBase64List, existingImageUrls, inStock, quantity, isVisible } = body;
 
       // Find the row to update
       const getResponse = await sheets.spreadsheets.values.get({
@@ -145,28 +162,28 @@ export default async (req: Request, context: Context) => {
       if (rowIndex === -1) return Response.json({ message: "Product not found" }, { status: 404 });
       const actualRowNumber = rowIndex + 1;
 
-      // Upload Image to ImgBB if base64 data was provided
-      if (imageBase64) {
-        const imgbbKey = process.env.IMGBB_API_KEY;
-        if (!imgbbKey) {
-          return Response.json({ message: "Server missing IMGBB_API_KEY for image uploads." }, { status: 500 });
-        }
-        const formData = new URLSearchParams();
-        const cleanBase64 = imageBase64.replace(/^data:image\/[a-z]+;base64,/, "");
-        formData.append("image", cleanBase64);
-        formData.append("key", imgbbKey);
+      // Start with existing images the user chose to keep
+      let finalImageUrls: string[] = existingImageUrls || [];
 
-        const imgbbResponse = await fetch("https://api.imgbb.com/1/upload", {
-          method: "POST", body: formData,
-        });
+      // Upload new images if provided
+      const base64Items: string[] = imageBase64List || (imageBase64 ? [imageBase64] : []);
 
-        if (!imgbbResponse.ok) {
-          return Response.json({ message: "Failed to upload image to ImgBB." }, { status: 500 });
-        }
-
-        const imgbbData = await imgbbResponse.json();
-        imageUrl = imgbbData.data.url;
+      if (base64Items.length > 0) {
+        const newUrls = await Promise.all(base64Items.map(b64 => uploadToImgBB(b64)));
+        finalImageUrls = [...finalImageUrls, ...newUrls];
       }
+
+      // Fallback: if no images at all, try to keep the old value from the sheet
+      if (finalImageUrls.length === 0) {
+        const currentRow = await sheets.spreadsheets.values.get({
+          spreadsheetId: sheetId,
+          range: `Sheet1!F${actualRowNumber}`,
+        });
+        const currentImageUrl = currentRow.data.values?.[0]?.[0] || "";
+        finalImageUrls = currentImageUrl ? currentImageUrl.split("|") : [];
+      }
+
+      const imageUrlField = finalImageUrls.join("|");
 
       await sheets.spreadsheets.values.update({
         spreadsheetId: sheetId,
@@ -174,7 +191,7 @@ export default async (req: Request, context: Context) => {
         valueInputOption: "USER_ENTERED",
         requestBody: {
           values: [
-             [id, name, description, price, category, imageUrl, inStock ? "TRUE" : "FALSE", quantity, isVisible ? "TRUE" : "FALSE", details || ""]
+             [id, name, description, price, category, imageUrlField, inStock ? "TRUE" : "FALSE", quantity, isVisible ? "TRUE" : "FALSE", details || ""]
           ],
         },
       });

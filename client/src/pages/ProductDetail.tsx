@@ -1,6 +1,6 @@
 import { useParams, Link } from "wouter";
 import { useState } from "react";
-import { Minus, Plus, ShoppingBag } from "lucide-react";
+import { ArrowLeft, Minus, Plus, ShoppingBag, Truck, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import { useProduct, useProducts } from "@/hooks/use-products";
 import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
@@ -15,10 +15,10 @@ export default function ProductDetail() {
   const { addItem } = useCartStore();
 
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState<string>("");
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const relatedProducts = allProducts
-    ?.filter((p) => p.id !== productId && p.category === product?.category && p.isVisible)
+    ?.filter((p) => p.id !== productId && p.category === product?.category)
     .slice(0, 4) || [];
 
   if (isError || !product) {
@@ -33,32 +33,114 @@ export default function ProductDetail() {
     );
   }
 
+  const imageUrls = product.imageUrls || [product.imageUrl];
+  const hasMultipleImages = imageUrls.length > 1;
+
   const handleAddToCart = () => {
-    addItem(product, quantity, selectedSize);
+    addItem(product, quantity);
+  };
+
+  const goToPrev = () => {
+    setActiveImageIndex(prev => (prev === 0 ? imageUrls.length - 1 : prev - 1));
+  };
+
+  const goToNext = () => {
+    setActiveImageIndex(prev => (prev === imageUrls.length - 1 ? 0 : prev + 1));
   };
 
   return (
-    <div className="pt-28 pb-24">
+    <div className="pt-20 pb-24">
+      {/* Breadcrumb */}
+      <div className="border-b-2 border-black bg-[#C0C0C0] sticky top-20 z-30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4 text-sm font-display uppercase tracking-widest font-bold">
+          <Link href="/shop" className="text-gray-600 hover:text-black flex items-center gap-1">
+            <ArrowLeft className="w-4 h-4" /> Shop
+          </Link>
+          <span className="text-gray-400">/</span>
+          <Link href={`/shop?category=${product.category}`} className="text-gray-600 hover:text-black">
+            {product.category}
+          </Link>
+          <span className="text-gray-400">/</span>
+          <span className="text-black truncate">{product.name}</span>
+        </div>
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-24">
 
-          {/* Left: Image */}
+          {/* Left: Image Gallery */}
           <div className="flex-1">
+            {/* Main Image */}
             <div className="border-4 border-black brutalist-shadow bg-[#ADADAD] aspect-[4/5] relative overflow-hidden group">
-              <img
-                src={product.imageUrl}
-                alt={product.name}
-                className="w-full h-full object-contain mix-blend-multiply transition-transform duration-700 hover:scale-105 cursor-zoom-in"
-              />
+              {/* Image Stack with crossfade */}
+              {imageUrls.map((url, index) => (
+                <img
+                  key={index}
+                  src={url}
+                  alt={`${product.name} - Image ${index + 1}`}
+                  className={`absolute inset-0 w-full h-full object-cover object-center mix-blend-multiply transition-opacity duration-500 ease-in-out ${
+                    index === activeImageIndex ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+              ))}
+
+              {/* Out of stock overlay */}
               {!product.inStock && (
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-sm">
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-sm z-10">
                   <span className="bg-red-600 text-[#C0C0C0] font-display font-black text-5xl uppercase tracking-tighter px-8 py-4 border-4 border-black rotate-[-12deg]">
                     Sold Out
                   </span>
                 </div>
               )}
+
+              {/* Navigation Arrows */}
+              {hasMultipleImages && (
+                <>
+                  <button
+                    onClick={goToPrev}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 z-20 bg-[#C0C0C0] border-2 border-black p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black hover:text-[#C0C0C0] brutalist-shadow-sm"
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={goToNext}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 z-20 bg-[#C0C0C0] border-2 border-black p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black hover:text-[#C0C0C0] brutalist-shadow-sm"
+                    aria-label="Next image"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+
+                  {/* Image Counter */}
+                  <div className="absolute bottom-4 left-4 z-20 bg-black text-white px-3 py-1 font-display font-bold text-sm tracking-widest uppercase">
+                    {activeImageIndex + 1} / {imageUrls.length}
+                  </div>
+                </>
+              )}
             </div>
+
+            {/* Thumbnail Strip */}
+            {hasMultipleImages && (
+              <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
+                {imageUrls.map((url, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveImageIndex(index)}
+                    className={`flex-shrink-0 w-20 h-20 border-2 overflow-hidden transition-all duration-200 ${
+                      index === activeImageIndex
+                        ? "border-black brutalist-shadow-sm scale-105"
+                        : "border-gray-300 opacity-60 hover:opacity-100 hover:border-black"
+                    }`}
+                  >
+                    <img
+                      src={url}
+                      alt={`Thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover object-center mix-blend-multiply"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right: Details */}
@@ -78,39 +160,6 @@ export default function ProductDetail() {
             <div className="prose prose-lg font-sans text-gray-700 mb-12">
               <p>{product.description}</p>
             </div>
-
-            {product.details && (
-              <div className="border-t-2 border-black pt-6 mt-2">
-                <h3 className="font-display font-bold text-sm uppercase tracking-widest mb-3 text-gray-500">Product Details</h3>
-                <p className="font-sans text-gray-700 whitespace-pre-line leading-relaxed">{product.details}</p>
-              </div>
-            )}
-
-            {/* Size Selector */}
-            {product.inStock && (
-              <div className="mt-8 mb-4">
-                <div className="flex justify-between items-end mb-3">
-                  <h3 className="font-display font-bold text-sm uppercase tracking-widest text-gray-500">Select Size</h3>
-                </div>
-                <div className="flex gap-3 flex-wrap">
-                  {["S", "M", "L", "XL"].map((size) => (
-                    <label key={size} className="cursor-pointer">
-                      <input 
-                        type="radio" 
-                        name="size" 
-                        value={size} 
-                        checked={selectedSize === size} 
-                        onChange={(e) => setSelectedSize(e.target.value)} 
-                        className="sr-only peer" 
-                      />
-                      <div className="w-14 h-14 flex items-center justify-center border-2 border-black font-display font-bold text-xl bg-[#C0C0C0] peer-checked:bg-black peer-checked:text-[#C0C0C0] transition-colors brutalist-shadow-sm peer-checked:brutalist-shadow-none peer-checked:translate-x-[2px] peer-checked:translate-y-[2px] hover:bg-gray-300">
-                        {size}
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Action Area */}
             <div className="mt-auto bg-[#ADADAD] border-4 border-black p-6 brutalist-shadow">
@@ -160,6 +209,24 @@ export default function ProductDetail() {
                   <p className="font-sans text-sm text-gray-600 mt-2">Restock coming soon. Follow our socials for updates.</p>
                 </div>
               )}
+            </div>
+
+            {/* Guarantees */}
+            <div className="grid grid-cols-2 gap-4 mt-8">
+              <div className="border-2 border-black p-4 flex items-start gap-3 bg-[#ADADAD]">
+                <Truck className="w-6 h-6 flex-shrink-0" />
+                <div>
+                  <h4 className="font-display font-bold uppercase">Free Shipping</h4>
+                  <p className="font-sans text-sm text-gray-600">Nationwide in Morocco</p>
+                </div>
+              </div>
+              <div className="border-2 border-black p-4 flex items-start gap-3 bg-[#ADADAD]">
+                <RotateCcw className="w-6 h-6 flex-shrink-0" />
+                <div>
+                  <h4 className="font-display font-bold uppercase">14-Day Returns</h4>
+                  <p className="font-sans text-sm text-gray-600">No questions asked</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

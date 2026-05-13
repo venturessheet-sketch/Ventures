@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { X, GripVertical, ImagePlus } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -36,8 +37,12 @@ export default function AdminDashboard() {
   const [newProduct, setNewProduct] = useState({
     name: "", description: "", details: "", price: "", category: "", inStock: true, quantity: "0", isVisible: true
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  // Multi-image state
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  // For edit mode: existing images from the product that the user wants to keep
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
 
   // Settings State
   const [settings, setSettings] = useState({
@@ -71,12 +76,39 @@ export default function AdminDashboard() {
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const url = URL.createObjectURL(file);
-      setImagePreview(url);
-    }
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    // Add new files to existing list
+    setImageFiles(prev => [...prev, ...files]);
+    
+    // Create previews for new files
+    const newPreviews = files.map(file => URL.createObjectURL(file));
+    setImagePreviews(prev => [...prev, ...newPreviews]);
+
+    // Reset the input so same file can be re-selected
+    e.target.value = "";
+  };
+
+  const removeNewImage = (index: number) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => {
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const removeExistingImage = (index: number) => {
+    setExistingImageUrls(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const resetForm = () => {
+    setNewProduct({ name: "", description: "", details: "", price: "", category: "", inStock: true, quantity: "0", isVisible: true });
+    setImageFiles([]);
+    imagePreviews.forEach(url => URL.revokeObjectURL(url));
+    setImagePreviews([]);
+    setExistingImageUrls([]);
+    setEditingId(null);
   };
 
   const handleAddProduct = async (e: React.FormEvent) => {
@@ -85,8 +117,10 @@ export default function AdminDashboard() {
       toast({ title: "Validation Error", description: "Please select a category.", variant: "destructive" });
       return;
     }
-    if (!editingId && !imageFile) {
-      toast({ title: "Validation Error", description: "Please upload an image.", variant: "destructive" });
+    
+    const totalImages = existingImageUrls.length + imageFiles.length;
+    if (totalImages === 0) {
+      toast({ title: "Validation Error", description: "Please upload at least one image.", variant: "destructive" });
       return;
     }
 
@@ -97,14 +131,10 @@ export default function AdminDashboard() {
     const nextId = editingId || (products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1);
 
     try {
-      let imageBase64 = undefined;
-      if (imageFile) {
-        imageBase64 = await convertToBase64(imageFile);
-      }
-
-      let imageUrl = undefined;
-      if (editingId && !imageBase64) {
-        imageUrl = products.find(p => p.id === editingId)?.imageUrl;
+      // Convert all new image files to base64
+      let imageBase64List: string[] = [];
+      if (imageFiles.length > 0) {
+        imageBase64List = await Promise.all(imageFiles.map(f => convertToBase64(f)));
       }
 
       const response = await fetch("/api/admin/products", {
@@ -120,8 +150,8 @@ export default function AdminDashboard() {
           details: newProduct.details,
           price: parseFloat(newProduct.price.toString()) || 0,
           category: newProduct.category,
-          imageBase64: imageBase64,
-          imageUrl: imageUrl,
+          imageBase64List: imageBase64List.length > 0 ? imageBase64List : undefined,
+          existingImageUrls: editingId ? existingImageUrls : undefined,
           inStock: newProduct.inStock,
           quantity: parseInt(newProduct.quantity.toString(), 10) || 0,
           isVisible: newProduct.isVisible
@@ -130,11 +160,7 @@ export default function AdminDashboard() {
 
       if (response.ok) {
         toast({ title: "Success", description: `Product ${editingId ? "updated" : "added"} successfully!` });
-        setNewProduct({ name: "", description: "", details: "", price: "", category: "", inStock: true, quantity: "0", isVisible: true });
-        setImageFile(null);
-        setImagePreview(null);
-        setEditingId(null);
-        // User will need to refresh for now to see the new CSV cache unless we reload.
+        resetForm();
       } else {
         const error = await response.json();
         toast({ title: "Failed", description: error.message, variant: "destructive" });
@@ -158,8 +184,11 @@ export default function AdminDashboard() {
       quantity: product.quantity.toString(),
       isVisible: product.isVisible
     });
-    setImagePreview(product.imageUrl);
-    setImageFile(null);
+    // Load existing images
+    setExistingImageUrls(product.imageUrls || [product.imageUrl]);
+    setImageFiles([]);
+    imagePreviews.forEach(url => URL.revokeObjectURL(url));
+    setImagePreviews([]);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -213,7 +242,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="bg-card rounded-lg shadow border p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Add New Product</h2>
+        <h2 className="text-xl font-semibold mb-4">{editingId ? "Edit Product" : "Add New Product"}</h2>
         <form onSubmit={handleAddProduct} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -251,21 +280,85 @@ export default function AdminDashboard() {
               />
               <Label htmlFor="isVisible" className="cursor-pointer font-bold uppercase tracking-wider">Show in Store</Label>
             </div>
-            <div className="space-y-4">
-              <Label>Product Image {editingId && "(Leave empty to keep current image)"}</Label>
-              <Input 
-                type="file" 
-                accept="image/*" 
-                required={!editingId}
-                onChange={handleImageChange} 
-                className="cursor-pointer"
-              />
-              {imagePreview && (
-                <div className="mt-2 w-full max-w-[200px] border rounded-md overflow-hidden aspect-square">
-                  <img src={imagePreview} alt="Preview" className="w-full h-full object-contain" />
+
+            {/* Multi-Image Upload Section */}
+            <div className="space-y-4 md:col-span-2">
+              <Label className="flex items-center gap-2">
+                <ImagePlus className="w-4 h-4" />
+                Product Images
+                <span className="text-muted-foreground font-normal text-xs">
+                  ({existingImageUrls.length + imageFiles.length} image{existingImageUrls.length + imageFiles.length !== 1 ? 's' : ''} selected)
+                </span>
+              </Label>
+              
+              {/* Existing Images (edit mode) */}
+              {existingImageUrls.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider">Current Images</p>
+                  <div className="flex flex-wrap gap-3">
+                    {existingImageUrls.map((url, index) => (
+                      <div key={`existing-${index}`} className="relative group">
+                        <div className="w-24 h-24 border-2 border-black rounded-md overflow-hidden bg-muted">
+                          <img src={url} alt={`Current ${index + 1}`} className="w-full h-full object-contain" />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeExistingImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                        {index === 0 && (
+                          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-black text-white text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider">
+                            Main
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
+
+              {/* New Images Preview */}
+              {imagePreviews.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider">New Images to Upload</p>
+                  <div className="flex flex-wrap gap-3">
+                    {imagePreviews.map((url, index) => (
+                      <div key={`new-${index}`} className="relative group">
+                        <div className="w-24 h-24 border-2 border-dashed border-green-600 rounded-md overflow-hidden bg-muted">
+                          <img src={url} alt={`New ${index + 1}`} className="w-full h-full object-contain" />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeNewImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* File Input */}
+              <div className="flex items-center gap-3">
+                <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 border-2 border-black bg-muted hover:bg-accent transition-colors font-display font-bold uppercase tracking-wider text-sm brutalist-shadow-sm hover:translate-y-[1px] hover:translate-x-[1px] hover:shadow-none">
+                  <ImagePlus className="w-4 h-4" />
+                  Add Images
+                  <Input 
+                    type="file" 
+                    accept="image/*" 
+                    multiple
+                    onChange={handleImageChange} 
+                    className="hidden"
+                  />
+                </label>
+                <span className="text-xs text-muted-foreground">You can select multiple files at once</span>
+              </div>
             </div>
+
             <div className="space-y-2 md:col-span-2">
               <Label>Description</Label>
               <Input value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} placeholder="A really nice shirt." />
@@ -280,12 +373,7 @@ export default function AdminDashboard() {
               {isAdding ? "Saving..." : (editingId ? "Update Product" : "Add Product to Store")}
             </Button>
             {editingId && (
-              <Button type="button" variant="outline" onClick={() => {
-                setEditingId(null);
-                setNewProduct({ name: "", description: "", details: "", price: "", category: "", inStock: true, quantity: "0", isVisible: true });
-                setImageFile(null);
-                setImagePreview(null);
-              }}>
+              <Button type="button" variant="outline" onClick={resetForm}>
                 Cancel Edit
               </Button>
             )}
@@ -305,6 +393,7 @@ export default function AdminDashboard() {
                 <thead className="bg-muted text-muted-foreground uppercase">
                   <tr>
                     <th className="px-4 py-3">ID</th>
+                    <th className="px-4 py-3">Images</th>
                     <th className="px-4 py-3">Name</th>
                     <th className="px-4 py-3">Category</th>
                     <th className="px-4 py-3">Price</th>
@@ -317,6 +406,20 @@ export default function AdminDashboard() {
                   {products.map((product) => (
                     <tr key={product.id} className="hover:bg-muted/50">
                       <td className="px-4 py-3">{product.id}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1">
+                          {(product.imageUrls || [product.imageUrl]).slice(0, 3).map((url, i) => (
+                            <div key={i} className="w-8 h-8 border rounded overflow-hidden bg-muted flex-shrink-0">
+                              <img src={url} alt="" className="w-full h-full object-contain" />
+                            </div>
+                          ))}
+                          {(product.imageUrls || [product.imageUrl]).length > 3 && (
+                            <div className="w-8 h-8 border rounded bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground">
+                              +{(product.imageUrls || [product.imageUrl]).length - 3}
+                            </div>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-4 py-3 font-medium">{product.name}</td>
                       <td className="px-4 py-3">{product.category}</td>
                       <td className="px-4 py-3">{formatPrice(product.price)}</td>

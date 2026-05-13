@@ -1,5 +1,6 @@
 import { Link } from "wouter";
-import { Plus } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
 import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
 import type { Product } from "@/data/products";
@@ -12,6 +13,10 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCartStore();
   const { toast } = useToast();
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const imageUrls = product.imageUrls || [product.imageUrl];
+  const hasMultipleImages = imageUrls.length > 1;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -23,6 +28,18 @@ export function ProductCard({ product }: ProductCardProps) {
     });
   };
 
+  const goToPrev = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActiveIndex(prev => (prev === 0 ? imageUrls.length - 1 : prev - 1));
+  };
+
+  const goToNext = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActiveIndex(prev => (prev === imageUrls.length - 1 ? 0 : prev + 1));
+  };
+
   return (
     <Link
       href={`/product/${product.id}`}
@@ -30,8 +47,6 @@ export function ProductCard({ product }: ProductCardProps) {
     >
       {/* Image Container */}
       <div className="relative aspect-[4/5] bg-[#ADADAD] border-b-2 border-black overflow-hidden flex-shrink-0">
-        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity z-10" />
-
         {/* Category Badge */}
         <div className="absolute top-4 left-4 z-20">
           <span className="bg-black text-[#C0C0C0] font-display font-bold px-3 py-1 text-xs uppercase tracking-widest brutalist-shadow-sm">
@@ -48,11 +63,51 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
 
-        <img
-          src={product.imageUrl}
-          alt={product.name}
-          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 ease-out mix-blend-multiply"
-        />
+        {/* Image Stack with crossfade */}
+        {imageUrls.map((url, index) => (
+          <img
+            key={index}
+            src={url}
+            alt={`${product.name}${imageUrls.length > 1 ? ` - ${index + 1}` : ''}`}
+            className={`absolute inset-0 w-full h-full object-cover object-center mix-blend-multiply transition-opacity duration-400 ease-in-out ${
+              index === activeIndex ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        ))}
+
+        {/* Slider Arrows */}
+        {hasMultipleImages && (
+          <>
+            <button
+              onClick={goToPrev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-[#C0C0C0]/90 border-2 border-black p-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-black hover:text-[#C0C0C0]"
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={goToNext}
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-[#C0C0C0]/90 border-2 border-black p-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-black hover:text-[#C0C0C0]"
+              aria-label="Next image"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+
+            {/* Dot indicators */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              {imageUrls.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveIndex(i); }}
+                  className={`w-2 h-2 rounded-full border border-black transition-colors duration-200 ${
+                    i === activeIndex ? "bg-black" : "bg-[#C0C0C0]/80 hover:bg-black/50"
+                  }`}
+                  aria-label={`View image ${i + 1}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
 
         {/* Quick Add Button */}
         <button
