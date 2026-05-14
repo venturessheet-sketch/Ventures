@@ -396,6 +396,7 @@ export default function AdminDashboard() {
                     <th className="px-4 py-3">Images</th>
                     <th className="px-4 py-3">Name</th>
                     <th className="px-4 py-3">Category</th>
+                    <th className="px-4 py-3">Details</th>
                     <th className="px-4 py-3">Price</th>
                     <th className="px-4 py-3">Qty</th>
                     <th className="px-4 py-3">Visible</th>
@@ -422,6 +423,7 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-4 py-3 font-medium">{product.name}</td>
                       <td className="px-4 py-3">{product.category}</td>
+                      <td className="px-4 py-3 max-w-[200px] truncate text-xs text-muted-foreground">{product.details || "-"}</td>
                       <td className="px-4 py-3">{formatPrice(product.price)}</td>
                       <td className="px-4 py-3 font-bold">{product.quantity}</td>
                       <td className="px-4 py-3">

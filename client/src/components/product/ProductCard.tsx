@@ -122,9 +122,12 @@ export function ProductCard({ product }: ProductCardProps) {
 
       {/* Content */}
       <div className="p-5 flex flex-col flex-1">
-        <h3 className="font-display font-bold text-xl uppercase tracking-wide leading-tight mb-2 line-clamp-2 group-hover:underline decoration-2 underline-offset-4">
+        <h3 className="font-display font-bold text-xl uppercase tracking-wide leading-tight mb-2 line-clamp-1 group-hover:underline decoration-2 underline-offset-4">
           {product.name}
         </h3>
+        <p className="text-sm text-gray-600 font-sans line-clamp-2 mb-4">
+          {product.description}
+        </p>
 
         <div className="mt-auto pt-4 flex justify-between items-end">
           <p className="font-display font-black text-2xl">

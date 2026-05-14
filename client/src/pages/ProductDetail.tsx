@@ -161,9 +161,18 @@ export default function ProductDetail() {
               {formatPrice(product.price)}
             </p>
 
-            <div className="prose prose-lg font-sans text-gray-700 mb-12">
+            <div className="prose prose-lg font-sans text-gray-700 mb-8">
               <p>{product.description}</p>
             </div>
+
+            {product.details && (
+              <div className="mb-12 border-t-2 border-black pt-6">
+                <h3 className="font-display font-bold uppercase tracking-widest text-lg mb-4">Product Details</h3>
+                <div className="prose prose-sm font-sans text-gray-600 whitespace-pre-line">
+                  {product.details}
+                </div>
+              </div>
+            )}
 
             {/* Action Area */}
             <div className="mt-auto bg-[#ADADAD] border-4 border-black p-6 brutalist-shadow">
